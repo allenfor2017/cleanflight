@@ -66,8 +66,11 @@ extern "C" {
     } testData_t;
 
     static testData_t testData;
-
+    static uint8_t readPos = 0;
     static uint8_t getCameraInfoResponseData[] = { 0x55, 0x23, 0x01, 0x01, 0x3b };
+    static uint8_t getCameraMainMenuEntriesResponseData[]  = {0x55, 0x24, 0x14, 0x02, 0x09, 0x01, 0x02, 0x02, 0x04, 0x03, 0x05, 0x04, 0x05, 0x05, 0x03, 0x06, 0x03, 0x07, 0x02, 0x08, 0x04, 0x09, 0x05, 0x7b};
+    static uint8_t getCameraItemMenuEntriesResponseData[]  = {0x55, 0x25, 0x14, 0x05, 0x09, 0x0a, 0x02, 0x0b, 0x04, 0x0c, 0x05, 0x0d, 0x05, 0x0e, 0x03, 0x0f, 0x03, 0x10, 0x02, 0x11, 0x04, 0x12, 0x05, 0x73};
+    static uint8_t getCameraMenuEntriesValuesResponseData[]  = {0x55, 0x26, 0x36, 0x01, 0x03, 0x03, 0x02, 0x01, 0x01, 0x05, 0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x02, 0x02, 0x03, 0x02, 0x03, 0x01, 0x02, 0x04, 0x03, 0x03, 0x03, 0x05, 0x01, 0x5a, 0x01, 0x0a, 0x03, 0x06, 0x01, 0x32, 0x01, 0x0a, 0x03, 0x07, 0x01, 0xff, 0x01, 0x01, 0x04, 0x08, 0x01, 0x64, 0x05, 0x64, 0x01, 0x04, 0x09, 0x01, 0x64, 0x01, 0x0a, 0x01, 0x4c};
 
     rcsplit_state_e unitTestRCsplitState()
     {
@@ -89,6 +92,7 @@ extern "C" {
 
     void unitTestSetDeviceToReadyStatus()
     {
+        readPos = 0;
         testData.responseData = getCameraInfoResponseData;
         testData.responseDataLen = sizeof(getCameraInfoResponseData);
         testData.maxTimesOfRespDataAvailable = testData.responseDataLen + 1;
@@ -135,433 +139,553 @@ extern "C" {
     }
 }
 
-TEST(RCSplitTest, TestRCSplitInitWithoutPortConfigurated)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    bool result = rcSplitInit();
-    EXPECT_EQ(false, result);
-    EXPECT_EQ(RCSPLIT_STATE_UNKNOWN, unitTestRCsplitState());
-}
+// TEST(RCSplitTest, TestRCSplitInitWithoutPortConfigurated)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     bool result = rcSplitInit();
+//     EXPECT_EQ(false, result);
+//     EXPECT_EQ(RCSPLIT_STATE_UNKNOWN, unitTestRCsplitState());
+// }
 
-TEST(RCSplitTest, TestRCSplitInitWithoutOpenPortConfigurated)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    testData.isRunCamSplitOpenPortSupported = false;
-    testData.isRunCamSplitPortConfigurated = true;
+// TEST(RCSplitTest, TestRCSplitInitWithoutOpenPortConfigurated)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     testData.isRunCamSplitOpenPortSupported = false;
+//     testData.isRunCamSplitPortConfigurated = true;
 
-    bool result = rcSplitInit();
-    EXPECT_EQ(false, result);
-    EXPECT_EQ(RCSPLIT_STATE_UNKNOWN, unitTestRCsplitState());
-}
+//     bool result = rcSplitInit();
+//     EXPECT_EQ(false, result);
+//     EXPECT_EQ(RCSPLIT_STATE_UNKNOWN, unitTestRCsplitState());
+// }
 
-TEST(RCSplitTest, TestRCSplitInit)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    unitTestSetDeviceToReadyStatus();
-    testData.isRunCamSplitOpenPortSupported = true;
-    testData.isRunCamSplitPortConfigurated = true;
+// TEST(RCSplitTest, TestRCSplitInit)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     unitTestSetDeviceToReadyStatus();
+//     testData.isRunCamSplitOpenPortSupported = true;
+//     testData.isRunCamSplitPortConfigurated = true;
 
-    bool result = rcSplitInit();
+//     bool result = rcSplitInit();
+//     readPos = 0;
+//     rcSplitProcess((timeUs_t)0);
 
-    rcSplitProcess((timeUs_t)0);
+//     EXPECT_EQ(true, result);
+//     EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
+// }
 
-    EXPECT_EQ(true, result);
-    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
-}
-
-TEST(RCSplitTest, TestRecvWhoAreYouResponse)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    unitTestSetDeviceToReadyStatus();
-    testData.isRunCamSplitOpenPortSupported = true;
-    testData.isRunCamSplitPortConfigurated = true;
+// TEST(RCSplitTest, TestRecvWhoAreYouResponse)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     unitTestSetDeviceToReadyStatus();
+//     testData.isRunCamSplitOpenPortSupported = true;
+//     testData.isRunCamSplitPortConfigurated = true;
     
-    bool result = rcSplitInit();
-    EXPECT_EQ(true, result);
+//     bool result = rcSplitInit();
 
-    // here will generate a number in [6-255], it's make the serialRxBytesWaiting() and serialRead() run at least 5 times, 
-    // so the "who are you response" will full received, and cause the state change to RCSPLIT_STATE_IS_READY;
-    int8_t randNum = rand() % 127 + 6; 
-    testData.maxTimesOfRespDataAvailable = randNum;
-    uint8_t responseData[] = { 0x55, 0x01, 0xFF, 0xad, 0xaa };
-    testData.responseData = responseData;
-    testData.responseDataLen = sizeof(responseData);
+//     rcSplitProcess((timeUs_t)0);
 
-    rcSplitProcess((timeUs_t)0);
+//     EXPECT_EQ(true, result);
+//     EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
+// }
 
-    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
-}
-
-TEST(RCSplitTest, TestWifiModeChangeWithDeviceUnready)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    testData.isRunCamSplitOpenPortSupported = true;
-    testData.isRunCamSplitPortConfigurated = true;
-    testData.maxTimesOfRespDataAvailable = 0;
+// TEST(RCSplitTest, TestWifiModeChangeWithDeviceUnready)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     testData.isRunCamSplitOpenPortSupported = true;
+//     testData.isRunCamSplitPortConfigurated = true;
+//     testData.maxTimesOfRespDataAvailable = 0;
     
-    bool result = rcSplitInit();
-    EXPECT_EQ(true, result);
+//     bool result = rcSplitInit();
+//     EXPECT_EQ(true, result);
 
-    // bind aux1, aux2, aux3 channel to wifi button, power button and change mode
-    for (uint8_t i = 0; i <= (BOXCAMERA3 - BOXCAMERA1); i++) {
-        memset(modeActivationConditionsMutable(i), 0, sizeof(modeActivationCondition_t));
-    }
+//     // bind aux1, aux2, aux3 channel to wifi button, power button and change mode
+//     for (uint8_t i = 0; i <= (BOXCAMERA3 - BOXCAMERA1); i++) {
+//         memset(modeActivationConditionsMutable(i), 0, sizeof(modeActivationCondition_t));
+//     }
 
-    // bind aux1 to wifi button with range [900,1600]
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
-    modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
+//     // bind aux1 to wifi button with range [900,1600]
+//     modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+//     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
+//     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+//     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
-    // bind aux2 to power button with range [1900, 2100]
-    modeActivationConditionsMutable(1)->auxChannelIndex = 1;
-    modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
-    modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
-    modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
+//     // bind aux2 to power button with range [1900, 2100]
+//     modeActivationConditionsMutable(1)->auxChannelIndex = 1;
+//     modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
+//     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
+//     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    // bind aux3 to change mode with range [1300, 1600]
-    modeActivationConditionsMutable(2)->auxChannelIndex = 2;
-    modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
-    modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
-    modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
+//     // bind aux3 to change mode with range [1300, 1600]
+//     modeActivationConditionsMutable(2)->auxChannelIndex = 2;
+//     modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
+//     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1300);
+//     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
-    // make the binded mode inactive
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1800;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 900;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 900;
+//     // make the binded mode inactive
+//     rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1800;
+//     rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 900;
+//     rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 900;
 
-    updateActivatedModes();
+//     updateActivatedModes();
 
-    // runn process loop
-    rcSplitProcess(0);
+//     // runn process loop
+//     rcSplitProcess(0);
 
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA1));
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA3));
-}
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA1));
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA3));
+// }
 
-TEST(RCSplitTest, TestWifiModeChangeWithDeviceReady)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    unitTestSetDeviceToReadyStatus();
-    testData.isRunCamSplitOpenPortSupported = true;
-    testData.isRunCamSplitPortConfigurated = true;
-    testData.maxTimesOfRespDataAvailable = 0;
+// TEST(RCSplitTest, TestWifiModeChangeWithDeviceReady)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     unitTestSetDeviceToReadyStatus();
+//     testData.isRunCamSplitOpenPortSupported = true;
+//     testData.isRunCamSplitPortConfigurated = true;
     
-    bool result = rcSplitInit();
-    EXPECT_EQ(true, result);
+//     bool result = rcSplitInit();
+//     EXPECT_EQ(true, result);
 
-    // bind aux1, aux2, aux3 channel to wifi button, power button and change mode
-    for (uint8_t i = 0; i <= BOXCAMERA3 - BOXCAMERA1; i++) {
-        memset(modeActivationConditionsMutable(i), 0, sizeof(modeActivationCondition_t));
-    }
+//     rcSplitProcess(0);
+//     // bind aux1, aux2, aux3 channel to wifi button, power button and change mode
+//     for (uint8_t i = 0; i <= BOXCAMERA3 - BOXCAMERA1; i++) {
+//         memset(modeActivationConditionsMutable(i), 0, sizeof(modeActivationCondition_t));
+//     }
     
 
-    // bind aux1 to wifi button with range [900,1600]
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
-    modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
+//     // bind aux1 to wifi button with range [900,1600]
+//     modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+//     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
+//     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+//     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
-    // bind aux2 to power button with range [1900, 2100]
-    modeActivationConditionsMutable(1)->auxChannelIndex = 1;
-    modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
-    modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
-    modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
+//     // bind aux2 to power button with range [1900, 2100]
+//     modeActivationConditionsMutable(1)->auxChannelIndex = 1;
+//     modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
+//     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
+//     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    // bind aux3 to change mode with range [1300, 1600]
-    modeActivationConditionsMutable(2)->auxChannelIndex = 2;
-    modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
-    modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
-    modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
+//     // bind aux3 to change mode with range [1300, 1600]
+//     modeActivationConditionsMutable(2)->auxChannelIndex = 2;
+//     modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
+//     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
+//     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2000;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
+//     rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
+//     rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2000;
+//     rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
 
-    updateActivatedModes();
+//     updateActivatedModes();
 
-    // runn process loop
-    int8_t randNum = rand() % 127 + 6; 
-    testData.maxTimesOfRespDataAvailable = randNum;
-    uint8_t responseData[] = { 0x55, 0x01, 0xFF, 0xad, 0xaa };
-    testData.responseData = responseData;
-    testData.responseDataLen = sizeof(responseData);
-    rcSplitProcess((timeUs_t)0);
+//     // // runn process loop
+//     // int8_t randNum = rand() % 127 + 6; 
+//     // testData.maxTimesOfRespDataAvailable = randNum;
+//     // uint8_t responseData[] = { 0x55, 0x01, 0xFF, 0xad, 0xaa };
+//     // testData.responseData = responseData;
+//     // testData.responseDataLen = sizeof(responseData);
+//     // rcSplitProcess((timeUs_t)0);
 
-    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
+//     // EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
 
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA1));
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
-}
+//     // EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA1));
+//     // EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
+//     // EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
+// }
 
-TEST(RCSplitTest, TestWifiModeChangeCombine)
-{
-    memset(&testData, 0, sizeof(testData));
-    unitTestResetRCSplit();
-    unitTestSetDeviceToReadyStatus();
-    testData.isRunCamSplitOpenPortSupported = true;
-    testData.isRunCamSplitPortConfigurated = true;
-    testData.maxTimesOfRespDataAvailable = 0;
+// TEST(RCSplitTest, TestWifiModeChangeCombine)
+// {
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+//     unitTestSetDeviceToReadyStatus();
+//     testData.isRunCamSplitOpenPortSupported = true;
+//     testData.isRunCamSplitPortConfigurated = true;
     
-    bool result = rcSplitInit();
-    EXPECT_EQ(true, result);
-
-    // bind aux1, aux2, aux3 channel to wifi button, power button and change mode
-    for (uint8_t i = 0; i <= BOXCAMERA3 - BOXCAMERA1; i++) {
-        memset(modeActivationConditionsMutable(i), 0, sizeof(modeActivationCondition_t));
-    }
+//     bool result = rcSplitInit();
+//     EXPECT_EQ(true, result);
+//     rcSplitProcess(0);
+//     // bind aux1, aux2, aux3 channel to wifi button, power button and change mode
+//     for (uint8_t i = 0; i <= BOXCAMERA3 - BOXCAMERA1; i++) {
+//         memset(modeActivationConditionsMutable(i), 0, sizeof(modeActivationCondition_t));
+//     }
     
 
-    // bind aux1 to wifi button with range [900,1600]
-    modeActivationConditionsMutable(0)->auxChannelIndex = 0;
-    modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
-    modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
-    modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
+//     // bind aux1 to wifi button with range [900,1600]
+//     modeActivationConditionsMutable(0)->auxChannelIndex = 0;
+//     modeActivationConditionsMutable(0)->modeId = BOXCAMERA1;
+//     modeActivationConditionsMutable(0)->range.startStep = CHANNEL_VALUE_TO_STEP(CHANNEL_RANGE_MIN);
+//     modeActivationConditionsMutable(0)->range.endStep = CHANNEL_VALUE_TO_STEP(1600);
 
-    // bind aux2 to power button with range [1900, 2100]
-    modeActivationConditionsMutable(1)->auxChannelIndex = 1;
-    modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
-    modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
-    modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
+//     // bind aux2 to power button with range [1900, 2100]
+//     modeActivationConditionsMutable(1)->auxChannelIndex = 1;
+//     modeActivationConditionsMutable(1)->modeId = BOXCAMERA2;
+//     modeActivationConditionsMutable(1)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
+//     modeActivationConditionsMutable(1)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    // bind aux3 to change mode with range [1300, 1600]
-    modeActivationConditionsMutable(2)->auxChannelIndex = 2;
-    modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
-    modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
-    modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
+//     // bind aux3 to change mode with range [1300, 1600]
+//     modeActivationConditionsMutable(2)->auxChannelIndex = 2;
+//     modeActivationConditionsMutable(2)->modeId = BOXCAMERA3;
+//     modeActivationConditionsMutable(2)->range.startStep = CHANNEL_VALUE_TO_STEP(1900);
+//     modeActivationConditionsMutable(2)->range.endStep = CHANNEL_VALUE_TO_STEP(2100);
 
-    // // make the binded mode inactive
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2000;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
-    updateActivatedModes();
+//     // // make the binded mode inactive
+//     rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
+//     rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2000;
+//     rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1700;
+//     updateActivatedModes();
 
-    // runn process loop
-    int8_t randNum = rand() % 127 + 6; 
-    testData.maxTimesOfRespDataAvailable = randNum;
-    uint8_t responseData[] = { 0x55, 0x01, 0xFF, 0xad, 0xaa };
-    testData.responseData = responseData;
-    testData.responseDataLen = sizeof(responseData);
-    rcSplitProcess((timeUs_t)0);
+//     // runn process loop
+//     int8_t randNum = rand() % 127 + 6; 
+//     testData.maxTimesOfRespDataAvailable = randNum;
+//     uint8_t responseData[] = { 0x55, 0x01, 0xFF, 0xad, 0xaa };
+//     testData.responseData = responseData;
+//     testData.responseDataLen = sizeof(responseData);
+//     rcSplitProcess((timeUs_t)0);
 
-    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
+//     EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
 
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA1));
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
-
-
-    // // make the binded mode inactive
-    rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1500;
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1300;
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1900;
-    updateActivatedModes();
-    rcSplitProcess((timeUs_t)0);
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA1));
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA2));
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA3));
+//     EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA1));
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
+//     EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
 
 
-    rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1899;
-    updateActivatedModes();
-    rcSplitProcess((timeUs_t)0);
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
+//     // // make the binded mode inactive
+//     rcData[modeActivationConditions(0)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1500;
+//     rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1300;
+//     rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1900;
+//     updateActivatedModes();
+//     rcSplitProcess((timeUs_t)0);
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA1));
+//     EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA2));
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA3));
 
-    rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2001;
-    updateActivatedModes();
-    rcSplitProcess((timeUs_t)0);
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA1));
-    EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
-    EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
-}
 
-static void osdDrawLogo(displayPort_t *osdDisplayPort, int x, int y)
-{
-    // display logo and help
-    char fontOffset = 160;
-    for (int row = 0; row < 4; row++) {
-        for (int column = 0; column < 24; column++) {
-            if (fontOffset != 255) // FIXME magic number
-                displayWriteChar(osdDisplayPort, x + column, y + row, fontOffset++);
-        }
-    }
-}
+//     rcData[modeActivationConditions(2)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 1899;
+//     updateActivatedModes();
+//     rcSplitProcess((timeUs_t)0);
+//     EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
 
-TEST(RCSplitTest, TestPacketGenerate)
+//     rcData[modeActivationConditions(1)->auxChannelIndex + NON_AUX_CHANNEL_COUNT] = 2001;
+//     updateActivatedModes();
+//     rcSplitProcess((timeUs_t)0);
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA1));
+//     EXPECT_EQ(true, unitTestIsSwitchActivited(BOXCAMERA2));
+//     EXPECT_EQ(false, unitTestIsSwitchActivited(BOXCAMERA3));
+// }
+
+// static void osdDrawLogo(displayPort_t *osdDisplayPort, int x, int y)
+// {
+//     // display logo and help
+//     char fontOffset = 160;
+//     for (int row = 0; row < 4; row++) {
+//         for (int column = 0; column < 24; column++) {
+//             if (fontOffset != 255) // FIXME magic number
+//                 displayWriteChar(osdDisplayPort, x + column, y + row, fontOffset++);
+//         }
+//     }
+// }
+
+// TEST(RCSplitTest, TestPacketGenerate)
+// {
+//     sbuf_t buf;
+    
+//     bool result = false;
+//     uint16_t expectedPacketSize = 0;
+//     uint16_t actualPacketSize = 0;
+//     uint8_t *p = NULL;
+//     uint8_t *base = NULL;
+//     memset(&testData, 0, sizeof(testData));
+//     unitTestResetRCSplit();
+
+//     testData.isAllowBufferReadWrite = true;
+//     testData.isRunCamSplitOpenPortSupported = true;
+//     testData.isRunCamSplitPortConfigurated = true;
+    
+//     result = rcSplitInit();
+//     EXPECT_EQ(true, result);
+//     rcSplitProcess(0);
+//     // for (int i = 0; i < 1; i++) {
+//     //     expectedPacketSize = rcCamOSDGenerateDrawStringPacket(NULL, 5, 5, "Hello", 5);
+//     //     base = (uint8_t*)malloc(expectedPacketSize);
+//     //     buf.ptr = base;
+//     //     actualPacketSize = rcCamOSDGenerateDrawStringPacket(&buf, 5, 5, "Hello", 5);
+//     //     p = buf.ptr;
+//     //     for (int i = 0; i < actualPacketSize; i++) {
+//     //         printf("%02x ", *p++);
+//     //     }
+//     //     printf("\n");
+//     //     free(base);
+//     // }
+    
+    
+//     // expectedPacketSize = rcCamOSDGenerateClearPacket(NULL);
+//     // base = (uint8_t*)malloc(expectedPacketSize);
+//     // buf.ptr = base;
+//     // actualPacketSize = rcCamOSDGenerateClearPacket(&buf);
+//     // p = base;
+//     // printf("clear cmd11(%d):", expectedPacketSize);
+//     // for (int i = 0; i < actualPacketSize; i++) {
+//     //     printf("%02x ", *p++);
+//     // }
+//     // printf("\n");
+
+//     // base = buf.ptr = NULL;
+
+
+//     rcsplit_packet_v2_t packet;
+//     displayPort_t *osdDisplayPort = rccameraDisplayPortInit(rcSplitSerialPort);
+//     EXPECT_EQ(true, osdDisplayPort != NULL);
+
+//     // displayClearScreen(osdDisplayPort);
+//     // osdDrawLogo(osdDisplayPort, 3, 1);
+//     // displayWrite(osdDisplayPort, 7, 8,  CMS_STARTUP_HELP_TEXT1);
+//     // displayWrite(osdDisplayPort, 11, 9, CMS_STARTUP_HELP_TEXT2);
+//     // displayWrite(osdDisplayPort, 11, 10, CMS_STARTUP_HELP_TEXT3);
+
+//     // expectedPacketSize = rcCamOSDGenerateDrawScreenPacket(NULL, rcsplitOSDScreenBuffer);
+//     // base = (uint8_t*)malloc(expectedPacketSize);
+//     // buf.ptr = base;
+//     // actualPacketSize = rcCamOSDGenerateDrawScreenPacket(&buf, rcsplitOSDScreenBuffer);
+//     // p = buf.ptr;
+//     // printf("drawlogo:");
+//     // for (int i = 0; i < actualPacketSize; i++) {
+//     //     printf("%02x ", *p++);
+//     // }
+//     // printf("\n");
+
+//     // displayClearScreen(osdDisplayPort);
+//     // for (int i = 0; i < RCCAMERA_SCREEN_CHARACTER_ROW_COUNT; i++) {
+//     //     for (int j = 0; j < RCCAMERA_SCREEN_CHARACTER_COLUMN_COUNT; j++) {
+//     //         displayWrite(osdDisplayPort, j, i, "A");
+//     //     }
+//     // }
+
+//     // expectedPacketSize = rcCamOSDGenerateControlPacket(NULL, RCSPLIT_CTRL_ARGU_WIFI_BTN);
+//     // base = (uint8_t*)malloc(expectedPacketSize);
+//     // buf.ptr = base;
+//     // actualPacketSize = rcCamOSDGenerateControlPacket(&buf, RCSPLIT_CTRL_ARGU_WIFI_BTN);
+//     // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
+//     // p = buf.ptr;
+//     // printf("wifi button:");
+//     // for (int i = 0; i < actualPacketSize; i++) {
+//     //     printf("%02x ", *p++);
+//     // }
+//     // printf("\n");
+
+//     // expectedPacketSize = rcCamOSDGenerateControlPacket(NULL, RCSPLIT_CTRL_ARGU_POWER_BTN);
+//     // base = (uint8_t*)malloc(expectedPacketSize);
+//     // buf.ptr = base;
+//     // actualPacketSize = rcCamOSDGenerateControlPacket(&buf, RCSPLIT_CTRL_ARGU_POWER_BTN);
+//     // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
+//     // p = buf.ptr;
+//     // printf("power button:");
+//     // for (int i = 0; i < actualPacketSize; i++) {
+//     //     printf("%02x ", *p++);
+//     // }
+//     // printf("\n");
+
+//     // expectedPacketSize = rcCamOSDGenerateControlPacket(NULL, RCSPLIT_CTRL_ARGU_CHANGE_MODE);
+//     // base = (uint8_t*)malloc(expectedPacketSize);
+//     // buf.ptr = base;
+//     // actualPacketSize = rcCamOSDGenerateControlPacket(&buf, RCSPLIT_CTRL_ARGU_CHANGE_MODE);
+//     // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
+//     // p = buf.ptr;
+//     // printf("change mode button:");
+//     // for (int i = 0; i < actualPacketSize; i++) {
+//     //     printf("%02x ", *p++);
+//     // }
+//     // printf("\n");
+
+//     // expectedPacketSize = rcCamOSDGenerateClearPacket(NULL);
+//     // base = (uint8_t*)malloc(expectedPacketSize);
+//     // buf.ptr = base;
+//     // actualPacketSize = rcCamOSDGenerateClearPacket(&buf);
+//     // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
+//     // p = buf.ptr;
+//     // printf("clear fullscreen:");
+//     // for (int i = 0; i < actualPacketSize; i++) {
+//     //     printf("%02x ", *p++);
+//     // }
+//     // printf("\n");
+//     expectedPacketSize = rcCamOSDGenerateGetCameraInfoPacket(NULL);
+//     base = (uint8_t*)malloc(expectedPacketSize);
+//     buf.ptr = base;
+//     actualPacketSize = rcCamOSDGenerateGetCameraInfoPacket(&buf);
+//     EXPECT_EQ(expectedPacketSize, actualPacketSize); 
+//     p = buf.ptr;
+//     printf("get camera info:");
+//     for (int i = 0; i < actualPacketSize; i++) {
+//         printf("%02x ", *p++);
+//     }
+//     printf("\n");
+
+//     // parse the packet, check the fields is correct or not.
+//     result = rcCamOSDPasrePacket(&buf, &packet);
+//     EXPECT_EQ(true, result);
+//     EXPECT_EQ(RCSPLIT_PACKET_CMD_GET_CONFIGURATIONS, packet.command);
+
+//     free(base);
+//     base = buf.ptr = NULL;
+
+
+//     // x:10, y:10; 字符:A
+//     // y:50, y:50; 字符:B
+//     // y:80, y:80; 字符:C
+//     rcsplit_osd_particle_screen_data_t testParticalChanges[] = { {10, 10, 'A'}, {20, 20, 'B'}, {30, 30, 'C'}, };
+//     int testDataCount = sizeof(testParticalChanges) / sizeof(rcsplit_osd_particle_screen_data_t);
+//     uint8_t *dataBuf = (uint8_t*)malloc(255 * 3);
+//     uint8_t pos = 0;
+//     for (int i = 192; i < 128 + 64 + 64; i++) {
+//         dataBuf[pos++] = i % 30;
+//         dataBuf[pos++] = i / 30;
+//         dataBuf[pos++] = i;
+//     }
+
+//     expectedPacketSize = rcCamOSDGenerateDrawParticleScreenPacket(NULL, dataBuf, pos);
+//     base = (uint8_t*)malloc(expectedPacketSize);
+//     buf.ptr = base;
+//     actualPacketSize = rcCamOSDGenerateDrawParticleScreenPacket(&buf, dataBuf, pos);
+//     p = buf.ptr;
+//     printf("praticle data:", pos);
+//     for (int i = 0; i < actualPacketSize; i++) {
+//         printf("%02x ", *p++);
+//     }
+//     printf("\n");
+// }
+
+TEST(RCSplitTest, TestGetRunCamCameraMenuEntries)
 {
     sbuf_t buf;
-    
-    bool result = false;
     uint16_t expectedPacketSize = 0;
     uint16_t actualPacketSize = 0;
     uint8_t *p = NULL;
     uint8_t *base = NULL;
+
     memset(&testData, 0, sizeof(testData));
     unitTestResetRCSplit();
-
+    unitTestSetDeviceToReadyStatus();
     testData.isAllowBufferReadWrite = true;
     testData.isRunCamSplitOpenPortSupported = true;
     testData.isRunCamSplitPortConfigurated = true;
-    
-    result = rcSplitInit();
-    EXPECT_EQ(true, result);
 
-    // for (int i = 0; i < 1; i++) {
-    //     expectedPacketSize = rcCamOSDGenerateDrawStringPacket(NULL, 5, 5, "Hello", 5);
-    //     base = (uint8_t*)malloc(expectedPacketSize);
-    //     buf.ptr = base;
-    //     actualPacketSize = rcCamOSDGenerateDrawStringPacket(&buf, 5, 5, "Hello", 5);
-    //     p = buf.ptr;
-    //     for (int i = 0; i < actualPacketSize; i++) {
-    //         printf("%02x ", *p++);
-    //     }
-    //     printf("\n");
-    //     free(base);
-    // }
-    
-    
-    // expectedPacketSize = rcCamOSDGenerateClearPacket(NULL);
-    // base = (uint8_t*)malloc(expectedPacketSize);
-    // buf.ptr = base;
-    // actualPacketSize = rcCamOSDGenerateClearPacket(&buf);
-    // p = base;
-    // printf("clear cmd11(%d):", expectedPacketSize);
-    // for (int i = 0; i < actualPacketSize; i++) {
-    //     printf("%02x ", *p++);
-    // }
-    // printf("\n");
+    bool result = rcSplitInit();
+    rcSplitProcess((timeUs_t)0);
 
-    // base = buf.ptr = NULL;
-
-
-    rcsplit_packet_v2_t packet;
-    displayPort_t *osdDisplayPort = rccameraDisplayPortInit(rcSplitSerialPort);
-    EXPECT_EQ(true, osdDisplayPort != NULL);
-
-    // displayClearScreen(osdDisplayPort);
-    // osdDrawLogo(osdDisplayPort, 3, 1);
-    // displayWrite(osdDisplayPort, 7, 8,  CMS_STARTUP_HELP_TEXT1);
-    // displayWrite(osdDisplayPort, 11, 9, CMS_STARTUP_HELP_TEXT2);
-    // displayWrite(osdDisplayPort, 11, 10, CMS_STARTUP_HELP_TEXT3);
-
-    // expectedPacketSize = rcCamOSDGenerateDrawScreenPacket(NULL, rcsplitOSDScreenBuffer);
-    // base = (uint8_t*)malloc(expectedPacketSize);
-    // buf.ptr = base;
-    // actualPacketSize = rcCamOSDGenerateDrawScreenPacket(&buf, rcsplitOSDScreenBuffer);
-    // p = buf.ptr;
-    // printf("drawlogo:");
-    // for (int i = 0; i < actualPacketSize; i++) {
-    //     printf("%02x ", *p++);
-    // }
-    // printf("\n");
-
-    // displayClearScreen(osdDisplayPort);
-    // for (int i = 0; i < RCCAMERA_SCREEN_CHARACTER_ROW_COUNT; i++) {
-    //     for (int j = 0; j < RCCAMERA_SCREEN_CHARACTER_COLUMN_COUNT; j++) {
-    //         displayWrite(osdDisplayPort, j, i, "A");
-    //     }
-    // }
-
-    // expectedPacketSize = rcCamOSDGenerateControlPacket(NULL, RCSPLIT_CTRL_ARGU_WIFI_BTN);
-    // base = (uint8_t*)malloc(expectedPacketSize);
-    // buf.ptr = base;
-    // actualPacketSize = rcCamOSDGenerateControlPacket(&buf, RCSPLIT_CTRL_ARGU_WIFI_BTN);
-    // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
-    // p = buf.ptr;
-    // printf("wifi button:");
-    // for (int i = 0; i < actualPacketSize; i++) {
-    //     printf("%02x ", *p++);
-    // }
-    // printf("\n");
-
-    // expectedPacketSize = rcCamOSDGenerateControlPacket(NULL, RCSPLIT_CTRL_ARGU_POWER_BTN);
-    // base = (uint8_t*)malloc(expectedPacketSize);
-    // buf.ptr = base;
-    // actualPacketSize = rcCamOSDGenerateControlPacket(&buf, RCSPLIT_CTRL_ARGU_POWER_BTN);
-    // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
-    // p = buf.ptr;
-    // printf("power button:");
-    // for (int i = 0; i < actualPacketSize; i++) {
-    //     printf("%02x ", *p++);
-    // }
-    // printf("\n");
-
-    // expectedPacketSize = rcCamOSDGenerateControlPacket(NULL, RCSPLIT_CTRL_ARGU_CHANGE_MODE);
-    // base = (uint8_t*)malloc(expectedPacketSize);
-    // buf.ptr = base;
-    // actualPacketSize = rcCamOSDGenerateControlPacket(&buf, RCSPLIT_CTRL_ARGU_CHANGE_MODE);
-    // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
-    // p = buf.ptr;
-    // printf("change mode button:");
-    // for (int i = 0; i < actualPacketSize; i++) {
-    //     printf("%02x ", *p++);
-    // }
-    // printf("\n");
-
-    // expectedPacketSize = rcCamOSDGenerateClearPacket(NULL);
-    // base = (uint8_t*)malloc(expectedPacketSize);
-    // buf.ptr = base;
-    // actualPacketSize = rcCamOSDGenerateClearPacket(&buf);
-    // EXPECT_EQ(expectedPacketSize, actualPacketSize); 
-    // p = buf.ptr;
-    // printf("clear fullscreen:");
-    // for (int i = 0; i < actualPacketSize; i++) {
-    //     printf("%02x ", *p++);
-    // }
-    // printf("\n");
-    expectedPacketSize = rcCamOSDGenerateGetCameraInfoPacket(NULL);
+    //获取配置项封包
+    expectedPacketSize = rcCamOSDGenerateGetMainMenuConfigurationsPacket(NULL);
     base = (uint8_t*)malloc(expectedPacketSize);
     buf.ptr = base;
-    actualPacketSize = rcCamOSDGenerateGetCameraInfoPacket(&buf);
+    actualPacketSize = rcCamOSDGenerateGetMainMenuConfigurationsPacket(&buf);
     EXPECT_EQ(expectedPacketSize, actualPacketSize); 
     p = buf.ptr;
-    printf("get camera info:");
+    printf("GET CAMERA MENU RNTRIES PACKET:");
     for (int i = 0; i < actualPacketSize; i++) {
         printf("%02x ", *p++);
     }
     printf("\n");
 
 
-    // parse the packet, check the fields is correct or not.
-    result = rcCamOSDPasrePacket(&buf, &packet);
     EXPECT_EQ(true, result);
-    EXPECT_EQ(RCSPLIT_PACKET_CMD_GET_CAMERA_INFO, packet.command);
+    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
 
-    free(base);
-    base = buf.ptr = NULL;
+    
+    testData.responseData = getCameraMainMenuEntriesResponseData;
+    testData.responseDataLen = sizeof(getCameraMainMenuEntriesResponseData);
+    testData.maxTimesOfRespDataAvailable = testData.responseDataLen + 1;
+    readPos = 0;
+    rcSplitProcess((timeUs_t)0);
+}
 
+TEST(RCSplitTest, TestGetRunCamCameraItemMenuEntries)
+{
+    sbuf_t buf;
+    uint16_t expectedPacketSize = 0;
+    uint16_t actualPacketSize = 0;
+    uint8_t *p = NULL;
+    uint8_t *base = NULL;
 
-    // x:10, y:10; 字符:A
-    // y:50, y:50; 字符:B
-    // y:80, y:80; 字符:C
-    rcsplit_osd_particle_screen_data_t testParticalChanges[] = { {10, 10, 'A'}, {20, 20, 'B'}, {30, 30, 'C'}, };
-    int testDataCount = sizeof(testParticalChanges) / sizeof(rcsplit_osd_particle_screen_data_t);
-    uint8_t *dataBuf = (uint8_t*)malloc(255 * 3);
-    uint8_t pos = 0;
-    for (int i = 192; i < 128 + 64 + 64; i++) {
-        dataBuf[pos++] = i % 30;
-        dataBuf[pos++] = i / 30;
-        dataBuf[pos++] = i;
-    }
+    memset(&testData, 0, sizeof(testData));
+    unitTestResetRCSplit();
+    unitTestSetDeviceToReadyStatus();
+    testData.isAllowBufferReadWrite = true;
+    testData.isRunCamSplitOpenPortSupported = true;
+    testData.isRunCamSplitPortConfigurated = true;
 
-    expectedPacketSize = rcCamOSDGenerateDrawParticleScreenPacket(NULL, dataBuf, pos);
+    bool result = rcSplitInit();
+    rcSplitProcess((timeUs_t)0);
+
+    //获取配置项封包
+    expectedPacketSize = rcCamOSDGenerateGetItemMenuConfigurationsPacket(NULL);
     base = (uint8_t*)malloc(expectedPacketSize);
     buf.ptr = base;
-    actualPacketSize = rcCamOSDGenerateDrawParticleScreenPacket(&buf, dataBuf, pos);
+    actualPacketSize = rcCamOSDGenerateGetItemMenuConfigurationsPacket(&buf);
+    EXPECT_EQ(expectedPacketSize, actualPacketSize); 
     p = buf.ptr;
-    printf("praticle data:", pos);
+    printf("GET CAMERA ITEM MENU RNTRIES PACKET:");
     for (int i = 0; i < actualPacketSize; i++) {
         printf("%02x ", *p++);
     }
     printf("\n");
+
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
+
+    testData.responseData = getCameraItemMenuEntriesResponseData;
+    testData.responseDataLen = sizeof(getCameraItemMenuEntriesResponseData);
+    testData.maxTimesOfRespDataAvailable = testData.responseDataLen + 1;
+    readPos = 0;
+    rcSplitProcess((timeUs_t)0);
+}
+
+
+
+TEST(RCSplitTest, TestGetRunCamCameraMenuValueEntries)
+{
+    sbuf_t buf;
+    uint16_t expectedPacketSize = 0;
+    uint16_t actualPacketSize = 0;
+    uint8_t *p = NULL;
+    uint8_t *base = NULL;
+
+    memset(&testData, 0, sizeof(testData));
+    unitTestResetRCSplit();
+    unitTestSetDeviceToReadyStatus();
+    testData.isAllowBufferReadWrite = true;
+    testData.isRunCamSplitOpenPortSupported = true;
+    testData.isRunCamSplitPortConfigurated = true;
+
+    bool result = rcSplitInit();
+    rcSplitProcess((timeUs_t)0);
+
+    //获取配置项封包
+    expectedPacketSize = rcCamOSDGenerateGetConfigurationsValuesPacket(NULL);
+    base = (uint8_t*)malloc(expectedPacketSize);
+    buf.ptr = base;
+    actualPacketSize = rcCamOSDGenerateGetConfigurationsValuesPacket(&buf);
+    EXPECT_EQ(expectedPacketSize, actualPacketSize); 
+    p = buf.ptr;
+    printf("GET CAMERA MENU RNTRIES VALUES PACKET:");
+    for (int i = 0; i < actualPacketSize; i++) {
+        printf("%02x ", *p++);
+    }
+    printf("\n");
+
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(RCSPLIT_STATE_IS_READY, unitTestRCsplitState());
+
+    
+    testData.responseData = getCameraMenuEntriesValuesResponseData;
+    testData.responseDataLen = sizeof(getCameraMenuEntriesValuesResponseData);
+    testData.maxTimesOfRespDataAvailable = testData.responseDataLen + 1;
+    readPos = 0;
+    rcSplitProcess((timeUs_t)0);
 }
 
 extern "C" {
@@ -632,14 +756,13 @@ extern "C" {
         UNUSED(instance); 
 
         if (testData.maxTimesOfRespDataAvailable > 0) {
-            static uint8_t i = 0;
-            static uint8_t *buffer = testData.responseData;
+            
+            uint8_t *buffer = testData.responseData;
 
-            if (i >= testData.responseDataLen) {
-                i = 0;
+            if (readPos >= testData.responseDataLen) {
+                readPos = 0;
             }
-
-            return buffer[i++];
+            return buffer[readPos++];
         }
 
         return 0; 
@@ -747,4 +870,11 @@ extern "C" {
         
         UNUSED(instance); UNUSED(data); UNUSED(count); 
     }
+
+    long cmsMenuChange(displayPort_t *pPort, const void *ptr)
+    {
+        UNUSED(pPort); UNUSED(ptr);
+        return 0;
+    }
+
 }

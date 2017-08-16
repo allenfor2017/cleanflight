@@ -50,6 +50,7 @@
 #include "io/vtx_smartaudio_cms.h"
 #include "io/vtx_tramp.h"
 
+#include "io/rcsplit.h"
 // Info
 
 static char infoGitRev[GIT_SHORT_REVISION_LENGTH];
@@ -110,6 +111,9 @@ static OSD_Entry menuFeaturesEntries[] =
 #endif // VTX_CONTROL
 #ifdef LED_STRIP
     {"LED STRIP", OME_Submenu, cmsMenuChange, &cmsx_menuLedstrip, 0},
+#endif // LED_STRIP
+#ifdef CAMERA_RUNCAM
+    {"CAMERA RC", OME_Submenu, cmsMenuChange, &cmsx_menuCameraRuncam, 0},
 #endif // LED_STRIP
     {"BACK", OME_Back, NULL, NULL, 0},
     {NULL, OME_END, NULL, NULL, 0}

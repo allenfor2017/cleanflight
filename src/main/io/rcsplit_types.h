@@ -61,7 +61,10 @@ typedef enum {
     RCSPLIT_PACKET_CMD_OSD_CLEAR =                      0x01,
     RCSPLIT_PACKET_CMD_OSD_DRAW_PARTICLE_SCREEN_DATA =  0x02, // draw partial screen buffer to rcsplit
     RCSPLIT_PACKET_CMD_GET_CAMERA_INFO =                0x03, // get the base info of camera, e.g video_format(N/P)
-    RCSPLIT_PACKET_CMD_GET_CONFIGURATIONS =             0x04,
+    RCSPLIT_PACKET_CMD_GET_CONFIGURATIONS =             0x04, //get the main course individual
+    RCSPLIT_PACKET_CMD_GET_CONFIGURATION_ITEMS =        0x05, //get a menu item
+    RCSPLIT_PACKET_CMD_GET_CONFIGURATIONS_VALUES =      0x06, 
+    RCSPLIT_PACKET_CMD_SET_CONFIGURATIONS_VALUE =       0x07,
 } rcsplit_packet_cmd_e;
 
 typedef enum {
@@ -115,7 +118,50 @@ typedef struct {
 
 RCPACKED(
 typedef struct {
-    uint8_t menuNameLength : 4;
-    uint8_t menuType : 4;
-    char *menuName;
+    uint8_t menuId;
+    uint8_t menuType;
+    // uint8_t menuNameLength;
+    // char *menuName;
 }) rcsplit_cms_menu_data_t;
+
+RCPACKED(
+typedef struct {
+    uint8_t menuId;
+    void *data;
+}) rcsplit_cms_menu_entry_data_t;
+
+RCPACKED(
+typedef struct {
+    uint8_t menuId;
+    uint8_t menuValType;
+    uint8_t menuValLength;
+    void *menuVal;
+}) runcam_OSD_String_t;
+
+RCPACKED(
+typedef struct {
+    uint8_t menuId;
+    uint8_t menuValType;
+    uint8_t menuVal;
+}) runcam_OSD_TAB_t;
+
+RCPACKED(
+typedef struct {
+    uint8_t menuId;
+    uint8_t menuValType;
+    uint8_t valMin;
+    uint8_t valMax;
+    uint8_t valStep;
+    uint8_t menuVal;
+}) runcam_OSD_UINT8_t;
+
+RCPACKED(
+typedef struct {
+    uint8_t menuId;
+    uint8_t menuValType;
+    uint8_t valMin;
+    uint8_t valMax;
+    uint8_t valStep;
+    uint16_t valMultipler;
+    uint8_t menuVal;
+}) runcam_OSD_FLOAT_t;

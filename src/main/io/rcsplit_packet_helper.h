@@ -27,3 +27,7 @@ uint16_t rcCamOSDGenerateGetCameraInfoPacket(sbuf_t *buf);
 uint16_t rcCamOSDGenerateControlPacket(sbuf_t *src, uint8_t subcommand);
 uint16_t rcCamOSDGenerateClearPacket(sbuf_t *buf);
 uint16_t rcCamOSDGenerateDrawParticleScreenPacket(sbuf_t *buf, uint8_t *dataBuf, uint16_t dataLen);
+
+uint16_t rcCamOSDGenerateGetMainMenuConfigurationsPacket(sbuf_t *buf);
+uint16_t rcCamOSDGenerateGetItemMenuConfigurationsPacket(sbuf_t *buf);
+uint16_t rcCamOSDGenerateGetConfigurationsValuesPacket(sbuf_t *buf);

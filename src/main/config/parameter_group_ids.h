@@ -86,6 +86,9 @@
 #define PG_VTX_RTC6705_CONFIG 259
 
 
+#define PG_CAMERA_RUNCAM_CONFIG 300
+
+
 // betaflight specific parameter group ids start at 500
 #define PG_BETAFLIGHT_START 500
 #define PG_MODE_ACTIVATION_OPERATOR_CONFIG 500

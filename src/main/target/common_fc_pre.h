@@ -122,6 +122,7 @@
 #define VTX_CONTROL
 #define VTX_SMARTAUDIO
 #define VTX_TRAMP
+#define CAMERA_RUNCAM
 #endif
 
 #if (FLASH_SIZE > 256)

@@ -135,3 +135,79 @@ uint16_t rcCamOSDGenerateGetCameraInfoPacket(sbuf_t *buf)
                                                 1);
     return packetSize;
 }
+
+uint16_t rcCamOSDGenerateGetMainMenuConfigurationsPacket(sbuf_t *buf)
+{
+    //menutype：
+    // 1://OME_String:只显示值
+    // 2://OME_TAB:TAB选项(包括开关)
+    // 3://OME_UINT8:UINT8选择值范围
+    // 4://OME_FLOAT:FLOAT选择值范围
+    // 5://OME_Submenu:下级菜单
+
+    //data封包为：<camModelId><counts> <m1-menuid><m1-menutype>
+    uint8_t data[] = {2,9,
+                      1,2,
+                      2,4,
+                      3,5,
+                      4,5,
+                      5,3,
+                      6,3,
+                      7,2,
+                      8,4,
+                      9,5
+        };
+    uint16_t packetSize = rcCamOSDGeneratePacket(buf,
+                                                RCSPLIT_PACKET_CMD_GET_CONFIGURATIONS, 
+                                                data,
+                                                sizeof(data));
+    return packetSize;
+}
+
+uint16_t rcCamOSDGenerateGetItemMenuConfigurationsPacket(sbuf_t *buf)
+{
+    //data封包为：<upMenuId><counts> <m1-menuid><m1-menutype>
+    uint8_t data[] = {5,9,
+                      10,2,
+                      11,4,
+                      12,5,
+                      13,5,
+                      14,3,
+                      15,3,
+                      16,2,
+                      17,4,
+                      18,5
+    };
+    uint16_t packetSize = rcCamOSDGeneratePacket(buf,
+                                                RCSPLIT_PACKET_CMD_GET_CONFIGURATION_ITEMS, 
+                                                data,
+                                                sizeof(data));
+    return packetSize;
+}
+
+uint16_t rcCamOSDGenerateGetConfigurationsValuesPacket(sbuf_t *buf)
+{
+     //data封包为：<strCounts><tabCounts><unitCounts><floatCounts> + 1/2/3/4
+                //1. <m1-menuValType><m1-menuId><m1-menuValLength><m1-*menuVal>
+                //2. <m1-menuValType><m1-menuId><m1-maxNums><m1-menuVal>
+                //3. <m1-menuValType><m1-menuId><m1-valMin><m1-valMax><m1-valStep><m1-menuVal>
+                //4. <m1-menuValType><m1-menuId><m1-valMin><m1-valMax><m1-valStep><m1-valMultipler><m1-menuVal>
+
+    uint8_t data[] = {1,3,3,2, 
+                      1,1,5,'H','E','L','L','O', 
+                      2,2,3, 
+                      2,3,1, 
+                      2,4,3,3, 
+                      3,5,1,90,1,10, 
+                      3,6,1,50,1,10,
+                      3,7,1,255,1,1,
+                      4,8,1,100,5,100,1, 
+                      4,9,1,100,1,10,1 
+    };
+
+    uint16_t packetSize = rcCamOSDGeneratePacket(buf, 
+                                                RCSPLIT_PACKET_CMD_GET_CONFIGURATIONS_VALUES, 
+                                                data, 
+                                                sizeof(data));
+    return packetSize;
+}
