@@ -162,4 +162,3 @@ void displayInit(displayPort_t *instance, const displayPortVTable_t *vTable)
     instance->grabCount = 0;
     instance->cursorRow = -1;
 }
-
