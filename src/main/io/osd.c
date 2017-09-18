@@ -93,6 +93,10 @@
 #include "hardware_revision.h"
 #endif
 
+#ifdef USE_OPENTCO
+#include "drivers/opentco_cam.h"
+#endif
+
 #define VIDEO_BUFFER_CHARS_PAL    480
 
 const char * const osdTimerSourceNames[] = {
@@ -1258,6 +1262,17 @@ STATIC_UNIT_TESTED void osdRefresh(timeUs_t currentTimeUs)
 #ifdef USE_ESC_SENSOR
         if (feature(FEATURE_ESC_SENSOR)) {
             escData = getEscSensorData(ESC_SENSOR_COMBINED);
+        }
+#endif
+
+#ifdef USE_OPENTCO
+        if (is_fpv_cam_osd_open) {
+            displayClearScreen(osdDisplayPort);
+            displayDrawScreen(osdDisplayPort);
+            setArmingDisabled(ARMING_DISABLED_OPENCAM_OSD_MENU);
+            return;
+        }else{
+            unsetArmingDisabled(ARMING_DISABLED_OPENCAM_OSD_MENU);
         }
 #endif
 

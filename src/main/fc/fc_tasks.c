@@ -42,6 +42,8 @@
 #include "drivers/vtx_common.h"
 #include "drivers/transponder_ir.h"
 #include "drivers/camera_control.h"
+#include "drivers/opentco.h"
+#include "drivers/opentco_cam.h"
 
 #include "fc/config.h"
 #include "fc/fc_msp.h"
@@ -366,6 +368,12 @@ void fcTasksInit(void)
 #ifdef USE_CAMERA_CONTROL
     setTaskEnabled(TASK_CAMCTRL, true);
 #endif
+#ifdef USE_RCSPLIT
+    setTaskEnabled(TASK_RCSPLIT, true);
+#endif
+#ifdef USE_OPENTCO
+	setTaskEnabled(TASK_OPENTCO_CAM, true);
+#endif
 }
 #endif
 
@@ -625,6 +633,15 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .desiredPeriod = TASK_PERIOD_HZ(5),
         .staticPriority = TASK_PRIORITY_IDLE
     },
+#endif
+
+#ifdef USE_OPENTCO
+[TASK_OPENTCO_CAM] = {
+    .taskName = "OPENTCO CAM",
+    .taskFunc = opentcoCamProcess,
+    .desiredPeriod = TASK_PERIOD_HZ(10),
+    .staticPriority = TASK_PRIORITY_IDLE
+},
 #endif
 #endif
 };

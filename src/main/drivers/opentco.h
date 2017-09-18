@@ -71,6 +71,24 @@ typedef enum {
 #define OPENTCO_OSD_COMMAND_SPECIAL_SUB_STICKSTATUS  0x00
 #define OPENTCO_OSD_COMMAND_SPECIAL_SUB_SPECTRUM     0x01
 
+// camera commands
+#define OPENTCO_CAM_COMMAND_REGISTER_ACCESS          0x00
+#define OPENTCO_CAM_COMMAND_CAMERA_CONTROL           0x01
+#define OPENTCO_CAM_COMMAND_5KEY_SIMULATION_PRESS    0x02
+#define OPENTCO_CAM_COMMAND_5KEY_SIMULATION_RELEASE  0x03
+#define OPENTCO_CAM_COMMAND_HANDSHAKE_DISCONNECT     0x04
+#define OPENTCO_CAM_COMMAND_GET_SETTINGS             0x05
+#define OPENTCO_CAM_COMMAND_READ_SETTING_DETAIL      0x06
+#define OPENTCO_CAM_COMMAND_WRITE_SETTING            0x07
+
+// the behavior of OPENTCO_CAM_COMMAND_CAMERA_CONTROL
+#define OPENTCO_CAM_CONTROL_SIMULATE_WIFI_BTN        0x00
+#define OPENTCO_CAM_CONTROL_SIMULATE_POWER_BTN       0x01
+#define OPENTCO_CAM_CONTROL_SIMULATE_CHANGE_MODE     0x02
+
+#define OPENTCO_CAM_REGISTER_STATUS                  0x00  // R/W
+#define OPENTCO_CAM_REGISTER_SUPPORTED_FEATURES      0x01  // R
+
 typedef enum {
     OPENTCO_OSD_FEATURE_ENABLE                = (1 << 0),
     OPENTCO_OSD_FEATURE_INVERT                = (1 << 1),
@@ -83,6 +101,27 @@ typedef enum {
     OPENTCO_OSD_FEATURE_RENDER_CROSSHAIR      = (1 << 12)
     // 13..15
 } opentcoOSDFeatures_e;
+
+typedef enum {
+    OPENTCO_CAM_FEATURE_SIMULATE_POWER_BTN          = (1 << 0),
+    OPENTCO_CAM_FEATURE_SIMULATE_WIFI_BTN           = (1 << 1),
+    OPENTCO_CAM_FEATURE_CHANGE_MODE                 = (1 << 2),
+    OPENTCO_CAM_FEATURE_SIMULATE_5KEY_OSD_CABLE     = (1 << 3),
+    OPENTCO_CAM_FEATURE_SETTING_ACCESS              = (1 << 4),
+} opentcoCamFeatures_e;
+
+typedef enum {
+    OPENTCO_CAM_5KEY_SIMULATION_SET                = 1 ,
+    OPENTCO_CAM_5KEY_SIMULATION_LEFT                   ,
+    OPENTCO_CAM_5KEY_SIMULATION_RIGHT                  ,
+    OPENTCO_CAM_5KEY_SIMULATION_UP                     ,
+    OPENTCO_CAM_5KEY_SIMULATION_DOWN                   ,
+} opentcoCam5KeySimulationKey_e;
+
+typedef enum {
+    OPENTCO_CAM_HANDSHAKE_PROTOCOL                    = 1 ,
+    OPENTCO_CAM_DISCONNECT_PROTOCOL                       ,
+} opentcoCamHandShakeAndDisconnectSimulationKey_e;
 
 
 // VTX DEVICES

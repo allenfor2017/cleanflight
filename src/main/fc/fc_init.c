@@ -70,6 +70,7 @@
 #include "drivers/vtx_rtc6705.h"
 #include "drivers/vtx_common.h"
 #include "drivers/camera_control.h"
+#include "drivers/opentco_cam.h"
 
 #include "fc/config.h"
 #include "fc/fc_init.h"
@@ -765,6 +766,10 @@ void init(void)
 
 #ifdef CJMCU
     LED2_ON;
+#endif
+
+#ifdef USE_OPENTCO
+    opentcoCamInit();
 #endif
 
     // Latch active features AGAIN since some may be modified by init().

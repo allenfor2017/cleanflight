@@ -89,6 +89,7 @@
 #define PG_VTX_DEVICE_CONFIG 260
 
 
+
 // betaflight specific parameter group ids start at 500
 #define PG_BETAFLIGHT_START 500
 #define PG_MODE_ACTIVATION_OPERATOR_CONFIG 500
@@ -115,7 +116,8 @@
 #define PG_ESCSERIAL_CONFIG 521
 #define PG_CAMERA_CONTROL_CONFIG 522
 #define PG_FRSKY_D_CONFIG 523
-#define PG_BETAFLIGHT_END 523
+#define PG_FPV_CAMERA_CONFIG 524
+#define PG_BETAFLIGHT_END 524
 
 // OSD configuration (subject to change)
 #define PG_OSD_FONT_CONFIG 2047
