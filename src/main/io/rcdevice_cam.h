@@ -56,26 +56,8 @@ typedef enum {
     RCDEVICE_CAM_KEY_RELEASE,
 } rcdeviceCamSimulationKeyEvent_e;
 
-// typedef enum {
-//     UINT8  = 0,
-//     INT8   ,
-//     UINT16 ,
-//     INT16  ,
-//     FLOAT  ,
-//     TEXT_SELECTION ,
-//     STRING ,
-//     FOLDER ,
-//     INFO ,
-// } rcdeviceCamSettingType_e;
-
 bool rcdeviceCamInit(void);
 void rcdeviceCamProcess(timeUs_t currentTimeUs);
 
 // used for unit test
 rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
-
-#ifdef CMS
-#include "cms/cms.h"
-#include "cms/cms_types.h"
-extern CMS_Menu cmsx_menuCameraRuncam;
-#endif

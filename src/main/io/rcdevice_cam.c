@@ -22,6 +22,7 @@
  #include <string.h>
  
  #include "common/time.h"
+ #include "common/crc.h"
  
  #include "config/parameter_group_ids.h"
  #include "config/parameter_group.h"
@@ -32,6 +33,7 @@
  #include "fc/rc_controls.h"
  #include "fc/rc_modes.h"
  #include "fc/runtime_config.h"
+
  
  #include "rx/rx.h"
  
@@ -303,255 +305,6 @@
  
  }
 
-
-//  OSD_Entry * findOSDEntryById(uint8_t findMenuId,CMS_Menu *findCMSMenu){
-//     if(findCMSMenu == NULL){
-//         return NULL;
-//     }
-//     OSD_Entry *menuEntries = findCMSMenu->entries;
-//     if(menuEntries == NULL){
-//         return NULL;
-//     }
-//     int i = 1;
-//     bool flag = true;
-//     while(flag){
-//         if(menuEntries[i].type == OME_Back){
-//             flag = false;
-//             return NULL;
-//         }
-
-//         uint8_t currentMenuId =  menuEntries[i].id;
-//         if(findMenuId == currentMenuId){
-//             flag = false;
-//             return &menuEntries[i];
-//         }
-
-//         if(menuEntries[i].type == OME_Submenu){
-//             if(menuEntries[i].data != NULL){
-//                 CMS_Menu *nextCMSMenu = ((CMS_Menu *) (menuEntries[i].data));
-//                 if(nextCMSMenu != NULL){
-//                     OSD_Entry * nextMenuEntries = findOSDEntryById(findMenuId,nextCMSMenu);
-//                     if(nextMenuEntries != NULL){
-//                         flag = false;
-//                         return nextMenuEntries;
-//                     }
-//                 }
-//             }
-//         }
-//         i++;
-//     }
-//  }
- 
-//  static void getCamOSDSettings(uint8_t parentSettingID){
-//     runcamDeviceSetting_t *settingListHead = malloc(sizeof(runcamDeviceSetting_t));
-//     bool result = runcamDeviceGetSettings(camDevice,parentSettingID,&settingListHead);
-//     if(result){
-//         runcamDeviceSetting_t *settingTailPtr = settingListHead;
-
-//         bool hasMenuFlag = true;
-//         uint8_t settingsPos = 0;
-//         while(hasMenuFlag){
-//             settingsPos++;
-//             if(settingTailPtr->next){
-//                 settingTailPtr = settingTailPtr->next;
-//             }else{
-//                 hasMenuFlag = false;
-//             }
-//         }
-//     }
-
-//     if(settingsPos != 0){
-//         // create OSD_Entry
-//         OSD_Entry *menuEntries = (OSD_Entry *)malloc(sizeof(OSD_Entry) * (settingsPos+2));
-        
-//         settingTailPtr = settingListHead;
-//         bool hasMenuFlag = true;
-//         while(hasMenuFlag){
-
-//             OSD_Entry menuEntry = { settingTailPtr->name, NULL, NULL, &settingTailPtr->value, 0, settingTailPtr->id };
-//             memcpy(&(menuEntries[i]), &menuEntry, sizeof(OSD_Entry));
-
-//             if(settingTailPtr->next){
-//                 settingTailPtr = settingTailPtr->next;
-//             }else{
-//                 hasMenuFlag = false;
-//             }
-//         }
-
-//         if(parentSettingID == 0){
-//             OSD_Entry backEntry = { "EXIT", OME_Back, NULL, NULL, 0 };
-//             memcpy(&(menuEntries[1 + settingsPos]), &backEntry, sizeof(OSD_Entry));
-//             OSD_Entry lastEntry = { NULL, OME_END, NULL, NULL, 0 };
-//             memcpy(&(menuEntries[2 + settingsPos]), &lastEntry, sizeof(OSD_Entry));
-    
-//             cmsx_menuCameraRuncam.entries = menuEntries; 
-//         }else{
-//              //create CMS_Menu
-//              OSD_Entry backEntry = { "BACK", OME_Back, NULL, NULL, 0 };
-//              memcpy(&(menuEntries[1 + settingsPos]), &backEntry, sizeof(OSD_Entry));
-//              OSD_Entry lastEntry = { NULL, OME_END, NULL, NULL, 0 };
-//              memcpy(&(menuEntries[2 + settingsPos]), &lastEntry, sizeof(OSD_Entry));
-    
-//              CMS_Menu cmsx_nextMenu = {"RUNCAMCAMERA",OME_MENU,NULL,NULL,NULL,menuEntries};
-//              CMS_Menu *cmsMenu = (CMS_Menu *)malloc(sizeof(CMS_Menu));
-//              memcpy(cmsMenu, &cmsx_nextMenu, sizeof(CMS_Menu));
-    
-//              OSD_Entry* upMenuOSDEntry = findOSDEntryById(upSettingID,&cmsx_menuCameraRuncam);
-//              if(upMenuOSDEntry != NULL){
-//                  upMenuOSDEntry->data = cmsMenu;
-//              }
-//         }
-//     }
-
-// }
-
-//  static void getCamOSDSettingDetail(uint8_t settingID){
-//     runcamDeviceSettingDetail_t *settingDetail = malloc(sizeof(runcamDeviceSettingDetail_t));
-//     bool result = runcamDeviceGetSettingDetail(camDevice,settingID,&settingDetail);
-//     if(result){
-//         uint8_t settingType = settingDetail->type;
-//         OSD_Entry* upMenuOSDEntry = findOSDEntryById(settingID,&cmsx_menuCameraRuncam);
-//         if(upMenuOSDEntry != NULL){
-//             switch(settingType){
-
-//                 case UINT8:
-//                 {
-//                     OSD_UINT8_t *saCmsEntFreqRef = malloc(sizeof(OSD_UINT8_t));
-//                     saCmsEntFreqRef->min  = settingDetail->minValue;
-//                     saCmsEntFreqRef->max  = settingDetail->maxValue;
-//                     saCmsEntFreqRef->step = settingDetail->stepSize;
-//                     saCmsEntFreqRef->val = &upMenuOSDEntry->data;
-
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_UINT8;
-//                     upMenuOSDEntry->data = &saCmsEntFreqRef;
-//                 }
-//                     break;
-//                 case INT8:
-//                 {
-//                     OSD_INT8_t *saCmsEntFreqRef = malloc(sizeof(OSD_INT8_t));
-//                     saCmsEntFreqRef->min  = settingDetail->minValue;
-//                     saCmsEntFreqRef->max  = settingDetail->maxValue;
-//                     saCmsEntFreqRef->step = settingDetail->stepSize;
-//                     saCmsEntFreqRef->val = &upMenuOSDEntry->data;
-    
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_INT8;
-//                     upMenuOSDEntry->data = &saCmsEntFreqRef;
-//                 }
-//                     break;
-//                 case UINT16:
-//                 {
-//                     OSD_UINT16_t *saCmsEntFreqRef = malloc(sizeof(OSD_UINT16_t));
-//                     saCmsEntFreqRef->min  = settingDetail->minValue;
-//                     saCmsEntFreqRef->max  = settingDetail->maxValue;
-//                     saCmsEntFreqRef->step = settingDetail->stepSize;
-//                     saCmsEntFreqRef->val = &upMenuOSDEntry->data;
-
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_UINT16;
-//                     upMenuOSDEntry->data = &saCmsEntFreqRef;
-//                 }
-//                     break;
-//                 case INT16:
-//                 {
-//                     OSD_INT16_t *saCmsEntFreqRef = malloc(sizeof(OSD_INT16_t));
-//                     saCmsEntFreqRef->min  = settingDetail->minValue;
-//                     saCmsEntFreqRef->max  = settingDetail->maxValue;
-//                     saCmsEntFreqRef->step = settingDetail->stepSize;
-//                     saCmsEntFreqRef->val = &upMenuOSDEntry->data;
-    
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_INT16;
-//                     upMenuOSDEntry->data = &saCmsEntFreqRef;
-//                 }
-//                     break;
-//                 case FLOAT:
-//                 {
-//                     OSD_FLOAT_t *saCmsEntFreqRef = malloc(sizeof(OSD_FLOAT_t));
-//                     saCmsEntFreqRef->min  = settingDetail->minValue;
-//                     saCmsEntFreqRef->max  = settingDetail->maxValue;
-//                     saCmsEntFreqRef->step = settingDetail->stepSize;
-//                     saCmsEntFreqRef->multipler = settingDetail->decimalPoint;
-//                     saCmsEntFreqRef->val = &upMenuOSDEntry->data;
-    
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_FLOAT;
-//                     upMenuOSDEntry->data = &saCmsEntFreqRef;
-//                 }
-//                     break;
-//                 case TEXT_SELECTION:
-//                 {
-//                     runcamDeviceSettingTextSelection_t *textSelectionsHead = settingDetail->textSelections;
-//                     runcamDeviceSettingTextSelection_t *textSelectionsItem = textSelectionsHead;
-//                     bool nextFlag = true;
-//                     uint8_t selectionPos = 0;
-//                     while(nextFlag){
-//                         selectionPos++;
-//                         if(textSelectionsItem->next){
-//                             textSelectionsItem = textSelectionsItem->next;
-//                         }else{
-//                             nextFlag = false;
-//                         }
-//                     }
-
-//                     if(selectionPos != 0){
-//                         char * switchNames[selectionPos];
-//                         runcamDeviceSettingTextSelection_t *textSelectionsItem = textSelectionsHead;
-
-//                         bool nextFlag = true;
-//                         uint8_t selectionPos = 0;
-//                         while(nextFlag){
-//                             switchNames[selectionPos] = textSelectionsItem->text;
-//                             selectionPos++;
-//                             if(textSelectionsItem->next){
-//                                 textSelectionsItem = textSelectionsItem->next;
-//                             }else{
-//                                 nextFlag = false;
-//                             }
-//                         }
-
-//                         OSD_TAB_t *selectionTab = malloc(sizeof(OSD_TAB_t));
-//                         selectionTab->val = &upMenuOSDEntry->data;
-//                         selectionTab->max = selectionPos;
-//                         selectionTab->names = switchNames;
-
-//                         upMenuOSDEntry->func = NULL;
-//                         upMenuOSDEntry->type = OME_TAB;
-//                         upMenuOSDEntry->data = &selectionTab;
-//                     }
-
-//                 }
-//                 break;
-//                 case STRING:
-//                 {
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_String;
-//                 }
-//                     break;
-//                 case INFO:
-//                 {
-//                     upMenuOSDEntry->func = NULL;
-//                     upMenuOSDEntry->type = OME_Label;
-//                 }
-//                     break;
-//                 case FOLDER:
-//                 {
-//                     upMenuOSDEntry->func = cmsMenuChange;
-//                     upMenuOSDEntry->type = OME_Submenu;
-//                 }
-//                     break;
-//             }
-//         }
-        
-
-//     }
-//  }
-
-//  static void setCamOSDSetting(uint8_t parentSettingID,uint8_t *data){
-    
-//  }
-
  void rcdeviceCamProcess(timeUs_t currentTimeUs){
      UNUSED(currentTimeUs);
  
@@ -561,9 +314,9 @@
          rcdeviceCamProcessMode();
      }
     
-     if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
+    //  if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
         rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
-     }
+    //  }
 
  }
  
@@ -582,19 +335,3 @@
      
      return true;
  }
-
-//  static OSD_Entry runcamMenuEntries[] =
-//  {
-//      { "- SETUP -", OME_Label, NULL, NULL, 0 },
-//      { "EXIT",   OME_Back, NULL, NULL, 0 },
-//      { NULL,     OME_END, NULL, NULL, 0 }
-//  };
- 
-//  CMS_Menu cmsx_menuCameraRuncam = {
-//      .GUARD_text = "RUNCAMCAMERA",
-//      .GUARD_type = OME_MENU,
-//      .onEnter = NULL,
-//      .onExit = NULL,
-//      .onGlobalExit = NULL,
-//      .entries = runcamMenuEntries,
-//  };
