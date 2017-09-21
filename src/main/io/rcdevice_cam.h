@@ -17,9 +17,8 @@
 
 #pragma once
 
-#include "fc/rc_modes.h"
-#include "drivers/camera_control.h"
 #include "drivers/rcdevice.h"
+#include "fc/rc_modes.h"
 
 typedef struct {
     uint8_t boxId;

@@ -26,12 +26,9 @@
  
  #include "config/parameter_group_ids.h"
  #include "config/parameter_group.h"
- 
- #include "drivers/rcdevice.h"
  #include "io/rcdevice_cam.h"
  
  #include "fc/rc_controls.h"
- #include "fc/rc_modes.h"
  #include "fc/runtime_config.h"
 
  
