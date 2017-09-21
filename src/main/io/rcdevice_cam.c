@@ -115,7 +115,7 @@
      runcamDeviceSimulate5KeyOSDCableButtonPress(camDevice,operation);
  }
 
- static bool rcdeviceCamHandShakePackageParser(runcamDevice_t *device){
+ static bool rcdeviceCamHandShakePacketParser(runcamDevice_t *device){
     // ... [OPEID:4|RESULT:4] [CRC:8]
     // prepare crc calc
     uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
@@ -145,7 +145,7 @@
     return true;
  }
 
- static bool rcdeviceCam5KeySimulationPackageParser(runcamDevice_t *device){
+ static bool rcdeviceCam5KeySimulationPacketParser (runcamDevice_t *device){
      // ... [CRC:8]
     // prepare crc calc
     uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
@@ -162,7 +162,7 @@
     return true;
  }
 
- static bool rcdeviceCamReadPackage(rcdeviceCamSimulationKeyEvent_e key){
+ static bool rcdeviceSend5KeyOSDCableSimualtionEvent(rcdeviceCamSimulationKeyEvent_e key){
     uint32_t max_retries = 1;
 
     if(key == RCDEVICE_CAM_KEY_LEFT_LONG || key == RCDEVICE_CAM_KEY_RIGHT_AND_TOP || key == RCDEVICE_CAM_KEY_RELEASE){
@@ -200,7 +200,7 @@
 
                      //[HEADER:8] [OPEID:4|RESULT:4] [CRC:8]
                     if (serialRxBytesWaiting(camDevice->serialPort) >= 2) {
-                        if (!rcdeviceCamHandShakePackageParser(camDevice)) {
+                        if (!rcdeviceCamHandShakePacketParser(camDevice)) {
                             // received broken / bad response
                             break;
                         }
@@ -212,7 +212,7 @@
                     //[HEADER:8] [CRC:8]
                     if (serialRxBytesWaiting(camDevice->serialPort) >= 1) {
                         
-                        if (!rcdeviceCam5KeySimulationPackageParser(camDevice)) {
+                        if (!rcdeviceCam5KeySimulationPacketParser(camDevice)) {
                             // received broken / bad response
                             break;
                         }
@@ -239,7 +239,7 @@
     if(needRelease){
         if(IS_MID(YAW) && IS_MID(PITCH) && IS_MID(ROLL)){
             key = RCDEVICE_CAM_KEY_RELEASE;
-            if(!rcdeviceCamReadPackage(key)){
+            if(!rcdeviceSend5KeyOSDCableSimualtionEvent(key)){
                 beeperConfirmationBeeps(3);
                 fpvCameraOSDMenuIsHandShake = false;
                 is_fpv_cam_osd_open = false;
@@ -292,7 +292,7 @@
     
     if(key != RCDEVICE_CAM_KEY_NONE){
         if(key != RCDEVICE_CAM_KEY_RELEASE) beeperConfirmationBeeps(1);
-        if(!rcdeviceCamReadPackage(key)){
+        if(!rcdeviceSend5KeyOSDCableSimualtionEvent(key)){
             beeperConfirmationBeeps(3);
             fpvCameraOSDMenuIsHandShake = false;
             is_fpv_cam_osd_open = false;
