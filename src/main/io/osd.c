@@ -93,8 +93,8 @@
 #include "hardware_revision.h"
 #endif
 
-#ifdef USE_OPENTCO
-#include "drivers/opentco_cam.h"
+#ifdef USE_RCDEVICE
+#include "io/rcdevice_cam.h"
 #endif
 
 #define VIDEO_BUFFER_CHARS_PAL    480
@@ -1265,14 +1265,14 @@ STATIC_UNIT_TESTED void osdRefresh(timeUs_t currentTimeUs)
         }
 #endif
 
-#ifdef USE_OPENTCO
+#ifdef USE_RCDEVICE
         if (is_fpv_cam_osd_open) {
             displayClearScreen(osdDisplayPort);
             displayDrawScreen(osdDisplayPort);
-            setArmingDisabled(ARMING_DISABLED_OPENCAM_OSD_MENU);
+            setArmingDisabled(ARMING_DISABLED_RCDEVICE_OSD_MENU);
             return;
         }else{
-            unsetArmingDisabled(ARMING_DISABLED_OPENCAM_OSD_MENU);
+            unsetArmingDisabled(ARMING_DISABLED_RCDEVICE_OSD_MENU);
         }
 #endif
 

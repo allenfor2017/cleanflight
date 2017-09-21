@@ -76,6 +76,7 @@
          device->serialPort = openSerialPort(portConfig->identifier, FUNCTION_OPENTCO, NULL, baudrate, MODE_RXTX, SERIAL_NOT_INVERTED);
  
          if (device->serialPort != NULL) {
+             return true;
              // try to detect the given device:
              if (opentcoDetectDevice(device)) {
                  opentcoRegisterDevice(device);

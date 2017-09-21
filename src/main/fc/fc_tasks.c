@@ -43,7 +43,6 @@
 #include "drivers/transponder_ir.h"
 #include "drivers/camera_control.h"
 #include "drivers/opentco.h"
-#include "drivers/opentco_cam.h"
 
 #include "fc/config.h"
 #include "fc/fc_msp.h"
@@ -87,7 +86,7 @@
 #include "telemetry/telemetry.h"
 
 #include "io/osd_slave.h"
-#include "io/rcsplit.h"
+#include "io/rcdevice_cam.h"
 
 #ifdef USE_BST
 void taskBstMasterProcess(timeUs_t currentTimeUs);
@@ -368,11 +367,8 @@ void fcTasksInit(void)
 #ifdef USE_CAMERA_CONTROL
     setTaskEnabled(TASK_CAMCTRL, true);
 #endif
-#ifdef USE_RCSPLIT
-    setTaskEnabled(TASK_RCSPLIT, true);
-#endif
-#ifdef USE_OPENTCO
-	setTaskEnabled(TASK_OPENTCO_CAM, true);
+#ifdef USE_RCDEVICE
+    setTaskEnabled(TASK_RCDEVICE, true);
 #endif
 }
 #endif
@@ -617,10 +613,10 @@ cfTask_t cfTasks[TASK_COUNT] = {
     },
 #endif
 
-#ifdef USE_RCSPLIT
-    [TASK_RCSPLIT] = {
-        .taskName = "RCSPLIT",
-        .taskFunc = rcSplitProcess,
+#ifdef USE_RCDEVICE
+    [TASK_RCDEVICE] = {
+        .taskName = "RCDEVICE",
+        .taskFunc = rcdeviceCamProcess,
         .desiredPeriod = TASK_PERIOD_HZ(10),        // 10 Hz, 100ms
         .staticPriority = TASK_PRIORITY_MEDIUM,
     },
@@ -633,15 +629,6 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .desiredPeriod = TASK_PERIOD_HZ(5),
         .staticPriority = TASK_PRIORITY_IDLE
     },
-#endif
-
-#ifdef USE_OPENTCO
-[TASK_OPENTCO_CAM] = {
-    .taskName = "OPENTCO CAM",
-    .taskFunc = opentcoCamProcess,
-    .desiredPeriod = TASK_PERIOD_HZ(10),
-    .staticPriority = TASK_PRIORITY_IDLE
-},
 #endif
 #endif
 };

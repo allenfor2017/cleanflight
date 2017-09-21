@@ -51,7 +51,7 @@ typedef enum {
     ARMING_DISABLED_CMS_MENU        = (1 << 13),
     ARMING_DISABLED_OSD_MENU        = (1 << 14),
     ARMING_DISABLED_BST             = (1 << 15),
-    ARMING_DISABLED_OPENCAM_OSD_MENU = (1 << 16),
+    ARMING_DISABLED_RCDEVICE_OSD_MENU = (1 << 16),
 } armingDisableFlags_e;
 
 #define NUM_ARMING_DISABLE_FLAGS 17

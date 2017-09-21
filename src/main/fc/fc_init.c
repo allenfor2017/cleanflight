@@ -70,7 +70,6 @@
 #include "drivers/vtx_rtc6705.h"
 #include "drivers/vtx_common.h"
 #include "drivers/camera_control.h"
-#include "drivers/opentco_cam.h"
 
 #include "fc/config.h"
 #include "fc/fc_init.h"
@@ -107,6 +106,7 @@
 #include "io/vtx_smartaudio.h"
 #include "io/vtx_tramp.h"
 #include "io/vtx_opentco.h"
+#include "io/rcdevice_cam.h"
 
 #include "scheduler/scheduler.h"
 
@@ -129,8 +129,6 @@
 #include "flight/navigation.h"
 #include "flight/pid.h"
 #include "flight/servos.h"
-
-#include "io/rcsplit.h"
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
 #include "hardware_revision.h"
@@ -768,10 +766,6 @@ void init(void)
     LED2_ON;
 #endif
 
-#ifdef USE_OPENTCO
-    opentcoCamInit();
-#endif
-
     // Latch active features AGAIN since some may be modified by init().
     latchActiveFeatures();
     pwmEnableMotors();
@@ -784,9 +778,9 @@ void init(void)
     fcTasksInit();
 #endif
 
-#ifdef USE_RCSPLIT
-    rcSplitInit();
-#endif // USE_RCSPLIT
+#ifdef USE_RCDEVICE
+    rcdeviceCamInit();
+#endif // USE_RCDEVICE
 
     systemState |= SYSTEM_STATE_READY;
 }

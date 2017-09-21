@@ -58,7 +58,7 @@ COMMON_SRC = \
             io/serial.c \
             io/statusindicator.c \
             io/transponder_ir.c \
-            io/rcsplit.c \
+            io/rcdevice_cam.c \
             msp/msp_serial.c \
             scheduler/scheduler.c \
             sensors/battery.c \
@@ -143,7 +143,6 @@ FC_SRC = \
             drivers/sonar_hcsr04.c \
             drivers/vtx_common.c \
             drivers/opentco_osd.c \
-            drivers/opentco_cam.c \
             drivers/opentco.c \
             flight/navigation.c \
             io/dashboard.c \
@@ -173,7 +172,8 @@ FC_SRC = \
             io/vtx_smartaudio.c \
             io/vtx_tramp.c \
             io/vtx_control.c \
-            io/vtx_opentco.c
+            io/vtx_opentco.c \
+            drivers/rcdevice.c
             
 COMMON_DEVICE_SRC = \
             $(CMSIS_SRC) \
