@@ -23,7 +23,7 @@
  #define RCDEVICE_PROTOCOL_HEADER                        0xCC
  
  
- #define RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH         11
+ #define RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH         10
  #define RCDEVICE_PROTOCOL_MAX_DATA_SIZE                 62
  
  // Commands
@@ -79,7 +79,7 @@
  // Reserved setting ids
  typedef enum {
      RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET        = 0,
-     RCDEVICE_PROTOCOL_SETTINGID_RESERVED1           = 1,
+     RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS        = 1,
      RCDEVICE_PROTOCOL_SETTINGID_RESERVED2           = 2,
      RCDEVICE_PROTOCOL_SETTINGID_RESERVED3           = 3,
      RCDEVICE_PROTOCOL_SETTINGID_RESERVED4           = 4,
@@ -132,9 +132,10 @@
  
  typedef struct {
      uint8_t type;
+     uint8_t *value;
      uint8_t *minValue;
      uint8_t *maxValue;
-     uint8_t decimalPoint;
+     uint16_t decimalPoint;
      uint8_t *stepSize;
      uint8_t maxStringSize;
      runcamDeviceSettingTextSelection_t *textSelections;
@@ -177,4 +178,5 @@
  bool runcamDeviceGetSettingDetail(runcamDevice_t *device, uint8_t settingID, runcamDeviceSettingDetail_t **outSettingDetail);
  void runcamDeviceReleaseSettingDetail(runcamDeviceSettingDetail_t *settingDetail);
  bool runcamDeviceWriteSetting(runcamDevice_t *device, uint8_t settingID, uint8_t *data, uint8_t dataLen, runcamDeviceWriteSettingResponse_t **response);
+
  

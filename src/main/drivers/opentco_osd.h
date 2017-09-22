@@ -51,7 +51,6 @@ int  opentcoOSDWriteChar(displayPort_t *, uint8_t x, uint8_t y, uint8_t c);
 int  opentcoOSDReloadProfile(displayPort_t *);
 int  opentcoOSDClearScreen(displayPort_t *);
 int  opentcoOSDFillRegion(displayPort_t*, uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t value);
-void opentcoOSDRefreshAll(void);
 bool opentcoOSDIsTransferInProgress(const displayPort_t *);
 int  opentcoOSDHeartbeat(displayPort_t *displayPort);
 void opentcoOSDResync(displayPort_t *displayPort);

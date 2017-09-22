@@ -23,7 +23,9 @@
  
  #include "common/time.h"
  #include "common/crc.h"
+ #include "drivers/system.h"
  #include "cms/cms.h"
+ 
  
  #include "config/parameter_group_ids.h"
  #include "config/parameter_group.h"
@@ -31,6 +33,8 @@
  
  #include "fc/rc_controls.h"
  #include "fc/runtime_config.h"
+ #include "fc/config.h"
+ #include "config/feature.h"
 
  
  #include "rx/rx.h"
@@ -82,6 +86,8 @@
                  if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE))
                      behavior = RCDEVICE_PROTOCOL_CHANGE_MODE;
                  break;
+            default:
+                break;
              }
              if (behavior != 0) {
                  runcamDeviceSimulateCameraButton(camDevice, behavior);
@@ -147,12 +153,8 @@
     // prepare crc calc
     uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
     // fetch data (serial buffer already contains enough bytes)
-    uint8_t data[1];
-    for(int i = 0; i < 1; i++) {
-        uint8_t rx = serialRead(device->serialPort);
-        data[i] = rx;
-        crc = crc8_dvb_s2(crc, rx);
-    }
+    uint8_t rx = serialRead(device->serialPort);
+    crc = crc8_dvb_s2(crc, rx);
     // check crc
     if (crc != 0) return false;
     
@@ -314,6 +316,7 @@
      }
     
     if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
+        featureClear(FEATURE_SOFTSERIAL);
         rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
     }
 

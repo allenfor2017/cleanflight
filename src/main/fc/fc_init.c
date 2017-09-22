@@ -88,6 +88,7 @@
 #include "io/beeper.h"
 #include "io/displayport_max7456.h"
 #include "io/displayport_opentco.h"
+#include "io/displayport_rcdevice.h"
 #include "io/serial.h"
 #include "io/flashfs.h"
 #include "io/gps.h"
@@ -564,30 +565,31 @@ void init(void)
 #if !defined(USE_OSD_SLAVE)
     //The OSD need to be initialised after GYRO to avoid GYRO initialisation failure on some targets
     if (feature(FEATURE_OSD)) {
-        switch (osdConfig()->device)
-        {
-        default:
-        case OSD_DEVICE_NONE:
-            // no device is used
-            osdDisplayPort = NULL;
-            break;
+        osdDisplayPort = rcdeviceDisplayPortInit(vcdProfile());
+//         switch (osdConfig()->device)
+//         {
+//         default:
+//         case OSD_DEVICE_NONE:
+//             // no device is used
+//             osdDisplayPort = NULL;
+//             break;
 
-#if defined(USE_MAX7456)
-        case OSD_DEVICE_MAX7456:
-            osdDisplayPort = max7456DisplayPortInit(vcdProfile());
-            break;
-#endif
-#if defined(USE_OSD_OVER_MSP_DISPLAYPORT) // OSD over MSP; not supported (yet)
-        case OSD_DEVICE_MSP:
-            osdDisplayPort = displayPortMspInit();
-            break;
-#endif
-#if defined(USE_OPENTCO)
-        case OSD_DEVICE_OPENTCO:
-            osdDisplayPort = opentcoDisplayPortInit(vcdProfile());
-            break;
-#endif
-        }
+// #if defined(USE_MAX7456)
+//         case OSD_DEVICE_MAX7456:
+//             osdDisplayPort = max7456DisplayPortInit(vcdProfile());
+//             break;
+// #endif
+// #if defined(USE_OSD_OVER_MSP_DISPLAYPORT) // OSD over MSP; not supported (yet)
+//         case OSD_DEVICE_MSP:
+//             osdDisplayPort = displayPortMspInit();
+//             break;
+// #endif
+// #if defined(USE_OPENTCO)
+//         case OSD_DEVICE_OPENTCO:
+//             osdDisplayPort = opentcoDisplayPortInit(vcdProfile());
+//             break;
+// #endif
+//         }
 
         // osdInit will register with CMS by itself.
         if (osdDisplayPort != NULL) {

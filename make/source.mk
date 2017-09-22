@@ -173,7 +173,8 @@ FC_SRC = \
             io/vtx_tramp.c \
             io/vtx_control.c \
             io/vtx_opentco.c \
-            drivers/rcdevice.c
+            drivers/rcdevice.c \
+            drivers/rcdevice_osd.c
             
 COMMON_DEVICE_SRC = \
             $(CMSIS_SRC) \

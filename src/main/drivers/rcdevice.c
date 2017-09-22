@@ -38,7 +38,7 @@
      RCDP_SETTING_PARSE_WAITING_NAME,
      RCDP_SETTING_PARSE_WAITING_VALUE,
  } runcamDeviceSettingParseStep_e;
- 
+
  // the crc calc function for rcsplit 1.0 and 1.1, this function will deprecate in feature
  static uint8_t crc_high_first(uint8_t *ptr, uint8_t len)
  {
@@ -87,28 +87,40 @@
      uint8_t data[expectedDataLen];
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
      printf("crc:%d ", RCDEVICE_PROTOCOL_HEADER);
-     while (serialRxBytesWaiting(device->serialPort) > 0 && dataPos < expectedDataLen) {
+     while (serialRxBytesWaiting(device->serialPort) && dataPos < expectedDataLen) {
          uint8_t c = serialRead(device->serialPort);
          printf("%02x ", c);
          crc = crc8_dvb_s2(crc, c);
          data[dataPos++] = c;
+
+         timeMs_t timeout = millis() + 100;
+         while (millis() < timeout) {}
      }
      printf("\n");
     //  CC 52 55 4E 43 41 4D 20 33 2E 30 01 08 00 83
-    //  if (data[0] == 0x52 && 
-    //     data[1] == 0x55 &&
-    //     data[2] == 0x4E
-        
-    // ) 
-    if (dataPos == 2)
-    {
+     if (data[0] == 0x52 && 
+        data[1] == 0x55 &&
+        data[2] == 0x4E &&
+        data[3] == 0x43 &&
+        data[4] == 0x41 &&
+        data[5] == 0x4D &&
+        data[6] == 0x20 &&
+        data[7] == 0x33 &&
+        data[8] == 0x2E &&
+        data[9] == 0x30 &&
+        data[10] == 0x01 &&
+        data[11] == 0x08 &&
+        data[12] == 0x00 &&
+        data[13] == 0x83
+    ) {
+
         featureClear(FEATURE_LED_STRIP);
      }
 
      printf("in runcamDeviceReceiveDeviceInfo:%02x\n", crc);
      
      if (crc != 0) { 
-        featureClear(FEATURE_SONAR); printf("crc validation failed\n"); return false; 
+        printf("crc validation failed\n"); return false; 
     }
  
      uint8_t protocolVersion = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH];
@@ -121,7 +133,7 @@
      uint8_t featureLowBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 1];
      uint8_t featureHighBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 2];
      device->info.features = (featureHighBits << 8) | featureLowBits;
- 
+
      return true;
  }
  
@@ -251,7 +263,6 @@
                  switch (command) {
                  case RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO:
                      printf("try to decode device info\n");
-                     featureClear(FEATURE_SOFTSERIAL);       
                      decodeResult =runcamDeviceReceiveDeviceInfo(device);
                      break;
                  case RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS:
@@ -377,6 +388,7 @@
              // check the device is using rcsplit firmware 1.1(or 1.0) or 'RunCam Device Protocol', 
              // so we can access it in correct way.
              if (runcamDeviceVerify(device)) {
+                featureClear(FEATURE_SONAR);
                  return true;
              }
  
@@ -422,7 +434,7 @@
  {
      return runcamDeviceSendRequestAndWaitingResp(device, RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE, NULL, 0, NULL, NULL);
  }
- 
+
  // fill a region with same char on screen, this is used to DisplayPort feature support
  void runcamDeviceDispFillRegion(runcamDevice_t *device, uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t c)
  {
@@ -632,14 +644,17 @@
      case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
      {
          uint8_t size = sizeof(uint8_t);
+         uint8_t value = sbufReadU8(buf);
          uint8_t minValue = sbufReadU8(buf);
          uint8_t maxValue = sbufReadU8(buf);
          uint8_t stepSize = sbufReadU8(buf);
  
+         settingDetail->value = (uint8_t*)malloc(size);
          settingDetail->minValue = (uint8_t*)malloc(size);
          settingDetail->maxValue = (uint8_t*)malloc(size);
          settingDetail->stepSize = (uint8_t*)malloc(size);
  
+         *settingDetail->value = value;
          *settingDetail->minValue = minValue;
          *settingDetail->maxValue = maxValue;
          *settingDetail->stepSize = stepSize;
@@ -649,34 +664,36 @@
      case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
      {
          uint8_t size = sizeof(uint16_t);
+         uint16_t value = sbufReadU8(buf);
          uint16_t minValue = sbufReadU16(buf);
          uint16_t maxValue = sbufReadU16(buf);
          uint16_t stepSize = sbufReadU16(buf);
  
+         settingDetail->value = (uint8_t*)malloc(size);
          settingDetail->minValue = (uint8_t*)malloc(size);
          settingDetail->maxValue = (uint8_t*)malloc(size);
          settingDetail->stepSize = (uint8_t*)malloc(size);
  
-         memcpy(settingDetail->minValue, &minValue, size);
-         memcpy(settingDetail->maxValue, &maxValue, size);
-         memcpy(settingDetail->stepSize, &stepSize, size);
+         *settingDetail->value = value;
+         *settingDetail->minValue = minValue;
+         *settingDetail->maxValue = maxValue;
+         *settingDetail->stepSize = stepSize;
      }
          break;
      case RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT:
      {
-         uint8_t size = sizeof(float);
-         float minValue = sbufReadU32(buf);
-         float maxValue = sbufReadU32(buf);
-         uint8_t decimalPoint = sbufReadU8(buf);
-         uint32_t stepSize = sbufReadU32(buf);
+         float minValue = sbufReadU8(buf);
+         float maxValue = sbufReadU8(buf);
+         uint16_t decimalPoint = sbufReadU16(buf);
+         uint8_t stepSize = sbufReadU8(buf);
  
-         settingDetail->minValue = (uint8_t*)malloc(size);
-         settingDetail->maxValue = (uint8_t*)malloc(size);
-         settingDetail->stepSize = (uint8_t*)malloc(size);
+         settingDetail->minValue = (uint8_t*)malloc(sizeof(uint8_t));
+         settingDetail->maxValue = (uint8_t*)malloc(sizeof(uint8_t));
+         settingDetail->stepSize = (uint8_t*)malloc(sizeof(uint8_t));
  
-         memcpy(settingDetail->minValue, &minValue, size);
-         memcpy(settingDetail->maxValue, &maxValue, size);
-         memcpy(settingDetail->stepSize, &stepSize, size);
+         memcpy(settingDetail->minValue, &minValue, sizeof(uint8_t));
+         memcpy(settingDetail->maxValue, &maxValue, sizeof(uint8_t));
+         memcpy(settingDetail->stepSize, &stepSize, sizeof(uint8_t));
          settingDetail->decimalPoint = decimalPoint;
      }
          break;
