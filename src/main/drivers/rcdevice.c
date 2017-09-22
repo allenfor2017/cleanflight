@@ -79,7 +79,7 @@
  // decode the device info
  static bool runcamDeviceReceiveDeviceInfo(runcamDevice_t *device)
  {
-     const uint8_t expectedDataLen = 16;
+     const uint8_t expectedDataLen = 14;
      uint8_t dataPos = 0;
      uint8_t data[expectedDataLen];
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
