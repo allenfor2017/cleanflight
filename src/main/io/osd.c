@@ -1266,9 +1266,8 @@ STATIC_UNIT_TESTED void osdRefresh(timeUs_t currentTimeUs)
 #endif
 
 #ifdef USE_RCDEVICE
-        if (is_fpv_cam_osd_open) {
+        if (rcdeviceInMenu) {
             displayClearScreen(osdDisplayPort);
-            displayDrawScreen(osdDisplayPort);
             setArmingDisabled(ARMING_DISABLED_RCDEVICE_OSD_MENU);
             return;
         }else{

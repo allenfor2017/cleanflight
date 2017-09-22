@@ -23,6 +23,7 @@
  
  #include "common/time.h"
  #include "common/crc.h"
+ #include "cms/cms.h"
  
  #include "config/parameter_group_ids.h"
  #include "config/parameter_group.h"
@@ -42,7 +43,6 @@
  runcamDevice_t *camDevice = &runcamDevice;
  rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
 
- bool fpvCameraOSDMenuIsHandShake = false;
  timeUs_t lastTimeUs = 0;
  bool needRelease = false;
  
@@ -133,12 +133,10 @@
     uint8_t resResult = (data[0] & 0x0F);
     if(resResult == 1){
         if(operationID == RCDEVICE_PROTOCOL_5KEY_FUNCTION_OPEN){
-            fpvCameraOSDMenuIsHandShake = true;
-            is_fpv_cam_osd_open = true;
+            rcdeviceInMenu = true;
         }
         else if(operationID == RCDEVICE_PROTOCOL_5KEY_FUNCTION_CLOSE){
-            fpvCameraOSDMenuIsHandShake = false;
-            is_fpv_cam_osd_open = false;
+            rcdeviceInMenu = false;
         }
     }
     return true;
@@ -229,6 +227,12 @@
 
  static void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs){
 
+#ifdef CMS
+    if(cmsInMenu){
+        return ;
+    }
+#endif
+
     if (camDevice->serialPort == NULL) {
         return ;
     }
@@ -240,8 +244,7 @@
             key = RCDEVICE_CAM_KEY_RELEASE;
             if(!rcdeviceSend5KeyOSDCableSimualtionEvent(key)){
                 beeperConfirmationBeeps(3);
-                fpvCameraOSDMenuIsHandShake = false;
-                is_fpv_cam_osd_open = false;
+                rcdeviceInMenu = false;
             }else{
                 needRelease = false;
             }
@@ -251,7 +254,7 @@
         }
     }else{
         if(IS_MID(ROLL) && IS_MID(PITCH) && IS_LO(YAW)){//Disconnect HI YAW
-            if(fpvCameraOSDMenuIsHandShake){
+            if(rcdeviceInMenu){
                 if(lastTimeUs == 0){
                     lastTimeUs = currentTimeUs;
                 }
@@ -264,11 +267,11 @@
              lastTimeUs = 0;
     
             if (IS_MID(THROTTLE) && IS_HI(YAW) && IS_HI(PITCH) && !ARMING_FLAG(ARMED)) {//HandShake HI YAW + HI PITCH
-                 if(!fpvCameraOSDMenuIsHandShake){
+                 if(!rcdeviceInMenu){
                     key = RCDEVICE_CAM_KEY_RIGHT_AND_TOP;
                  }
             }else{
-                if(fpvCameraOSDMenuIsHandShake){
+                if(rcdeviceInMenu){
                     if(IS_LO(ROLL)){//Left LO ROLL
                         key = RCDEVICE_CAM_KEY_LEFT;
                     }
@@ -293,8 +296,7 @@
         if(key != RCDEVICE_CAM_KEY_RELEASE) beeperConfirmationBeeps(1);
         if(!rcdeviceSend5KeyOSDCableSimualtionEvent(key)){
             beeperConfirmationBeeps(3);
-            fpvCameraOSDMenuIsHandShake = false;
-            is_fpv_cam_osd_open = false;
+            rcdeviceInMenu = false;
         }else{
             needRelease = true;
         }
@@ -311,10 +313,9 @@
          rcdeviceCamProcessMode();
      }
     
-    bool isSupport5KeySimualation = isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE);
-    // if(isSupport5KeySimualation){
+    if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
         rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
-    // }
+    }
 
  }
  

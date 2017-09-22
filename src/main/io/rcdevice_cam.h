@@ -26,14 +26,13 @@ typedef struct {
 } rcdevice_cam_switch_state_t;
 
 extern runcamDevice_t *camDevice;
-
-bool is_fpv_cam_osd_open;
+bool rcdeviceInMenu;
 
 // packet header and tail
 
-#define RCSPLIT_PACKET_HEADER           0x55
+#define RCSPLIT_PACKET_HEADER    0x55
 #define RCSPLIT_PACKET_CMD_CTRL  0x01
-#define RCSPLIT_PACKET_TAIL     0xaa
+#define RCSPLIT_PACKET_TAIL      0xaa
 
 typedef enum {
     RCSPLIT_CTRL_ARGU_INVALID = 0x0,
