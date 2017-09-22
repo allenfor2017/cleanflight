@@ -25,6 +25,9 @@
  #include "common/crc.h"
  #include "rcdevice.h"
  
+#include "fc/config.h"
+#include "config/feature.h"
+
  #include "io/serial.h"
  
  #include "io/rcsplit.h"
@@ -421,6 +424,7 @@
          return true;
      }
  
+     featureClear(FEATURE_TELEMETRY);
      return false;
  }
  
@@ -456,7 +460,7 @@
          if (device->serialPort != NULL) {
              if (isFirstTimeLoad) {
                  // wait 400 ms if the device is not prepared(in booting)
-                 timeMs_t timeout = millis() + 400;
+                 timeMs_t timeout = millis() + 1000;
                  while (millis() < timeout) {}
                  isFirstTimeLoad = false;
              }
