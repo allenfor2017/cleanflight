@@ -25,6 +25,9 @@
  #include "common/crc.h"
  #include "rcdevice.h"
  
+#include "fc/config.h"
+#include "config/feature.h"
+
  #include "io/serial.h"
  #include "io/rcdevice_cam.h"
  
@@ -316,6 +319,7 @@
          return true;
      }
  
+     featureClear(FEATURE_TELEMETRY);
      return false;
  }
  
@@ -323,7 +327,7 @@
  {
      uint8_t result = 0;
      uint8_t outputDataLen = 1;
-     if (!runcamDeviceSendRequestAndWaitingResp(device, RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO, &operation, sizeof(uint8_t), &result, &outputDataLen))
+     if (!runcamDeviceSendRequestAndWaitingResp(device, RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION, &operation, sizeof(uint8_t), &result, &outputDataLen))
          return false;
  
      // the high 4 bits is the operationID that we sent
@@ -351,7 +355,7 @@
          if (device->serialPort != NULL) {
              if (isFirstTimeLoad) {
                  // wait 400 ms if the device is not prepared(in booting)
-                 timeMs_t timeout = millis() + 400;
+                 timeMs_t timeout = millis() + 1000;
                  while (millis() < timeout) {}
                  isFirstTimeLoad = false;
              }
