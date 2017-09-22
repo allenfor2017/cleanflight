@@ -87,16 +87,29 @@
      uint8_t data[expectedDataLen];
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
      printf("crc:%d ", RCDEVICE_PROTOCOL_HEADER);
-     while (serialRxBytesWaiting(device->serialPort) && dataPos < expectedDataLen) {
+     while (serialRxBytesWaiting(device->serialPort) > 0 && dataPos < expectedDataLen) {
          uint8_t c = serialRead(device->serialPort);
          printf("%02x ", c);
          crc = crc8_dvb_s2(crc, c);
          data[dataPos++] = c;
      }
      printf("\n");
- 
+    //  CC 52 55 4E 43 41 4D 20 33 2E 30 01 08 00 83
+    //  if (data[0] == 0x52 && 
+    //     data[1] == 0x55 &&
+    //     data[2] == 0x4E
+        
+    // ) 
+    if (dataPos == 2)
+    {
+        featureClear(FEATURE_LED_STRIP);
+     }
+
      printf("in runcamDeviceReceiveDeviceInfo:%02x\n", crc);
-     if (crc != 0) { printf("crc validation failed\n"); return false; }
+     
+     if (crc != 0) { 
+        featureClear(FEATURE_SONAR); printf("crc validation failed\n"); return false; 
+    }
  
      uint8_t protocolVersion = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH];
      if (protocolVersion >= RCDEVICE_PROTOCOL_UNKNOWN) return false;
@@ -218,12 +231,13 @@
  // outputBuffer if the outputBuffer not a NULL pointer.
  static bool runcamDeviceSerialReceive(runcamDevice_t *device, uint8_t command, uint8_t *outputBuffer, uint8_t *outputBufferLen)
  {
+     featureClear(FEATURE_TELEMETRY);
      // wait 100ms for reply
      bool headerReceived = false;
      timeMs_t timeout = millis() + 100;
      while (millis() < timeout) {
          if (serialRxBytesWaiting(device->serialPort) > 0) {
-             
+            
              
              if (!headerReceived) {
                  uint8_t c = serialRead(device->serialPort);
@@ -237,6 +251,7 @@
                  switch (command) {
                  case RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO:
                      printf("try to decode device info\n");
+                     featureClear(FEATURE_SOFTSERIAL);       
                      decodeResult =runcamDeviceReceiveDeviceInfo(device);
                      break;
                  case RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS:
@@ -268,7 +283,7 @@
      uint32_t max_retries = 3;
      while (max_retries--) {
          // flush rx buffer
-         // runcamDeviceFlushRxBuffer(device);
+         runcamDeviceFlushRxBuffer(device);
  
          // send packet
          runcamDeviceSendPacket(device, commandID, paramData, paramDataLen);
@@ -318,8 +333,7 @@
          device->info.protocolVersion = RCDEVICE_PROTOCOL_VERSION_1_0;
          return true;
      }
- 
-     featureClear(FEATURE_TELEMETRY);
+
      return false;
  }
  
