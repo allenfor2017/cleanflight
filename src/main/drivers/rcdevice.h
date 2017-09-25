@@ -31,26 +31,28 @@
  // camera button simulation
  #define RCDEVICE_PROTOCOL_COMMAND_CAMERA_BTN_SIMULATION             0x01
  // 5 key osd cable simulation
- #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
- #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
- #define RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION                   0x04
- // device setting access
- #define RCDEVICE_PROTOCOL_COMMAND_GET_SETTINGS                      0x05
- #define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL               0x06
- #define RCDEVICE_PROTOCOL_COMMAND_WRITE_SETTING                     0x07
- // display port support
- #define RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION                  0x08
- #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x09
- #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_STRING                 0x0A
+#define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
+#define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
+#define RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION                   0x04
+// device setting access
+#define RCDEVICE_PROTOCOL_COMMAND_GET_SETTINGS                      0x10
+#define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL               0x11
+#define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING                      0x12
+#define RCDEVICE_PROTOCOL_COMMAND_WRITE_SETTING                     0x13
+// display port support
+#define RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION                  0x20
+#define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x21
+#define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING            0x22
+#define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x24
  
  
  // Feature Flag sets, it's a uint16_t flag
- #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON             (1 >> 0)
- #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON              (1 >> 1)
- #define RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE                       (1 >> 2)
- #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE          (1 >> 3)
- #define RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS            (1 >> 4)
- #define RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT                     (1 >> 5)
+ #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON             (1 << 0)
+ #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON              (1 << 1)
+ #define RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE                       (1 << 2)
+ #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE          (1 << 3)
+ #define RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS            (1 << 4)
+ #define RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT                     (1 << 5)
  
  
  // Operation of Camera Button Simulation

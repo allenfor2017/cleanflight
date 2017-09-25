@@ -193,6 +193,16 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     r = runcamDeviceSimulate5KeyOSDCableButtonRelease(&device);
     EXPECT_EQ(r, true);
     printf("\n");
+
+    printf("get charset detail:\n");
+    runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &settingDetail);
+    printf("\n");
+
+    printf("write charset:\n");
+    uint8_t newval = 1;
+    runcamDeviceWriteSettingResponse_t *response;
+    runcamDeviceWriteSetting(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &newval, sizeof(uint8_t), &response);
+    printf("\n");
 }
 
 extern "C" {

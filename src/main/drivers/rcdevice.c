@@ -176,22 +176,49 @@
  }
  
  // decode the device setting response
- static bool runcamDeviceReceiveSettings(runcamDevice_t *device, uint8_t *outputBuffer, uint8_t *outputBufferLen)
- {
-     UNUSED(device);
-     UNUSED(outputBuffer);
-     UNUSED(outputBufferLen);
- 
-     // const uint8_t expectedDataLen = 62;
-     // uint8_t dataPos = 0;
-     // uint8_t data[expectedDataLen];
-     // uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
-     // while (serialRxBytesWaiting(device->serialPort)) {
- 
-     // }
- 
-     return true;
- }
+ // decode the device setting response
+static bool runcamDeviceReceiveSettings(runcamDevice_t *device, uint8_t *outputBuffer, uint8_t *outputBufferLen)
+{
+    UNUSED(device);
+    UNUSED(outputBuffer);
+    UNUSED(outputBufferLen);
+
+    const uint8_t maxDataLen = 63;
+    uint8_t dataPos = 0;
+    uint8_t data[maxDataLen];
+    uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
+    uint8_t settingDataLength = 0xFF;
+
+    if (serialRxBytesWaiting(device->serialPort) > 0) {
+        // skip the remaining chunk count to get the setting data length
+        uint8_t c = serialRead(device->serialPort);
+        crc = crc8_dvb_s2(crc, c);
+        data[dataPos++] = c;
+
+        settingDataLength = serialRead(device->serialPort);
+        crc = crc8_dvb_s2(crc, settingDataLength);
+        data[dataPos++] = settingDataLength;
+    } 
+
+    if (settingDataLength > 60)
+        return false;
+
+    while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < (settingDataLength + 3)) {
+        uint8_t c = serialRead(device->serialPort);
+        crc = crc8_dvb_s2(crc, c);
+        data[dataPos++] = c;
+    }
+
+    if (crc != 0) 
+        return false;
+
+    if (outputBufferLen && (*outputBufferLen >= (dataPos - 1)) && outputBuffer) {
+        memcpy(outputBuffer, data, dataPos - 1); // return the data expect the crc field
+        *outputBufferLen = dataPos - 1;
+    }
+
+    return true;
+}
  
  // every time send packet to device, and want to get something from device, 
  // it'd better call the method to clear the rx buffer before the packet send, 
@@ -460,7 +487,7 @@
      paramsBuf[1] = y;
      paramsBuf[2] = c;
  
-     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION, paramsBuf, sizeof(paramsBuf));
+     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR, paramsBuf, sizeof(paramsBuf));
  }
  
  // draw a string on special position on screen, this is used to DisplayPort feature support
@@ -473,12 +500,12 @@
      uint8_t paramsBufLen = 2 + textLen;
      uint8_t *paramsBuf = (uint8_t*)malloc(paramsBufLen);
      
-     paramsBuf[0] = textLen;
+     paramsBuf[0] = textLen + 2;
      paramsBuf[1] = x;
      paramsBuf[2] = y;
      memcpy(paramsBuf + 3, text, textLen);
  
-     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION, paramsBuf, paramsBufLen);
+     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING, paramsBuf, paramsBufLen);
  
      free(paramsBuf);
      paramsBuf = NULL;
