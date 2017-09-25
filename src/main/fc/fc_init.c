@@ -126,7 +126,7 @@
 #include "flight/pid.h"
 #include "flight/servos.h"
 
-#include "io/rcsplit.h"
+#include "io/rcdevice_cam.h"
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
 #include "hardware_revision.h"
@@ -726,9 +726,9 @@ void init(void)
     fcTasksInit();
 #endif
 
-#ifdef USE_RCSPLIT
-    rcSplitInit();
-#endif // USE_RCSPLIT
+#ifdef USE_RCDEVICE
+    rcdeviceCamInit();
+#endif // USE_RCDEVICE
 
     systemState |= SYSTEM_STATE_READY;
 }

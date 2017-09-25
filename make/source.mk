@@ -58,7 +58,7 @@ COMMON_SRC = \
             io/serial.c \
             io/statusindicator.c \
             io/transponder_ir.c \
-            io/rcsplit.c \
+            io/rcdevice_cam.c \
             msp/msp_serial.c \
             scheduler/scheduler.c \
             sensors/battery.c \
@@ -167,7 +167,8 @@ FC_SRC = \
             io/vtx_rtc6705.c \
             io/vtx_smartaudio.c \
             io/vtx_tramp.c \
-            io/vtx_control.c
+            io/vtx_control.c \
+            drivers/rcdevice.c
 
 COMMON_DEVICE_SRC = \
             $(CMSIS_SRC) \

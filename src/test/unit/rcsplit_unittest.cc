@@ -41,7 +41,7 @@ extern "C" {
 
     #include "scheduler/scheduler.h"
     #include "drivers/serial.h"
-    #include "io/rcsplit.h"
+    #include "io/rcdevice_cam.h"
 
     #include "rx/rx.h"
 
