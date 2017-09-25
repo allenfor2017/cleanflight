@@ -315,10 +315,9 @@
          rcdeviceCamProcessMode();
      }
     
-    if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
-        featureClear(FEATURE_SOFTSERIAL);
+     if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
         rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
-    }
+     }
 
  }
  

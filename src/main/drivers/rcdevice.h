@@ -31,6 +31,7 @@
  // camera button simulation
  #define RCDEVICE_PROTOCOL_COMMAND_CAMERA_BTN_SIMULATION             0x01
  // 5 key osd cable simulation
+<<<<<<< HEAD
 #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
 #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
 #define RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION                   0x04
@@ -44,6 +45,21 @@
 #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x21
 #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING            0x22
 #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x24
+=======
+ #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
+ #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
+ #define RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION                   0x04
+ // device setting access
+ #define RCDEVICE_PROTOCOL_COMMAND_GET_SETTINGS                      0x10
+ #define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL               0x11
+ #define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING                      0x12
+ #define RCDEVICE_PROTOCOL_COMMAND_WRITE_SETTING                     0x13
+ // display port support
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION                  0x20
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x21
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING            0x22
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x24
+>>>>>>> f563b89a7b5c830cd1308888a3e879b99a6b5819
  
  
  // Feature Flag sets, it's a uint16_t flag
@@ -112,6 +128,7 @@
      RCDEVICE_PROTOCOL_SETTINGTYPE_STRING            = 6,
      RCDEVICE_PROTOCOL_SETTINGTYPE_FOLDER            = 7,
      RCDEVICE_PROTOCOL_SETTINGTYPE_INFO              = 8,
+     RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN
  } rcdeviceSettingType_e;
  
  typedef struct {
@@ -179,6 +196,10 @@
  void runcamDeviceReleaseSetting(runcamDeviceSetting_t *settingList);
  bool runcamDeviceGetSettingDetail(runcamDevice_t *device, uint8_t settingID, runcamDeviceSettingDetail_t **outSettingDetail);
  void runcamDeviceReleaseSettingDetail(runcamDeviceSettingDetail_t *settingDetail);
+<<<<<<< HEAD
  bool runcamDeviceWriteSetting(runcamDevice_t *device, uint8_t settingID, uint8_t *data, uint8_t dataLen, runcamDeviceWriteSettingResponse_t **response);
 
  
+=======
+ bool runcamDeviceWriteSetting(runcamDevice_t *device, uint8_t settingID, uint8_t *data, uint8_t dataLen, runcamDeviceWriteSettingResponse_t **response);
+>>>>>>> f563b89a7b5c830cd1308888a3e879b99a6b5819
