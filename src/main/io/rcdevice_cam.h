@@ -28,31 +28,6 @@ typedef struct {
 extern runcamDevice_t *camDevice;
 bool rcdeviceInMenu;
 
-// packet header and tail
-
-#define RCSPLIT_PACKET_HEADER    0x55
-#define RCSPLIT_PACKET_CMD_CTRL  0x01
-#define RCSPLIT_PACKET_TAIL      0xaa
-
-typedef enum {
-    RCSPLIT_CTRL_ARGU_INVALID = 0x0,
-    RCSPLIT_CTRL_ARGU_WIFI_BTN = 0x1,
-    RCSPLIT_CTRL_ARGU_POWER_BTN = 0x2,  
-    RCSPLIT_CTRL_ARGU_CHANGE_MODE = 0x3,
-    RCSPLIT_CTRL_ARGU_WHO_ARE_YOU = 0xFF,
-} rcsplit_ctrl_argument_e;
-
-typedef enum {
-    RCDEVICE_CAM_KEY_NONE,
-    RCDEVICE_CAM_KEY_ENTER,
-    RCDEVICE_CAM_KEY_LEFT,
-    RCDEVICE_CAM_KEY_UP,
-    RCDEVICE_CAM_KEY_RIGHT,
-    RCDEVICE_CAM_KEY_DOWN,
-    RCDEVICE_CAM_KEY_LEFT_LONG,
-    RCDEVICE_CAM_KEY_RIGHT_AND_TOP,
-    RCDEVICE_CAM_KEY_RELEASE,
-} rcdeviceCamSimulationKeyEvent_e;
 
 bool rcdeviceCamInit(void);
 void rcdeviceCamProcess(timeUs_t currentTimeUs);

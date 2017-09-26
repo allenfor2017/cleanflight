@@ -344,7 +344,7 @@ static uint8_t osdIncElementIndex(uint8_t elementIndex) {
 // to absolute positioning (based on display height and width)
 STATIC_UNIT_TESTED void osdConvertToAbsolutePosition(uint8_t item, int8_t *pos_x, int8_t *pos_y) {
     // output display dimensions
-    uint8_t maxX  = osdDisplayPort->colCount - 1;
+    uint8_t maxX  = 30;//osdDisplayPort->colCount - 1;
     uint8_t maxY = osdDisplayPort->rowCount - 1;
 
     // fetch origin positio
@@ -1351,7 +1351,7 @@ void osdUpdate(timeUs_t currentTimeUs)
 
     // fill screen element by element (one each call)
     osdRefresh(currentTimeUs);
-
+    displayDrawScreen(osdDisplayPort);
 #ifdef CMS
     // do not allow ARM if we are in menu
     if (displayIsGrabbed(osdDisplayPort)) {

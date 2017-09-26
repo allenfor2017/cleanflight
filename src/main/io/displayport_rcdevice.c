@@ -30,6 +30,7 @@
 #include "drivers/display.h"
 #include "drivers/rcdevice.h"
 #include "drivers/vcd.h"
+#include "drivers/rcdevice_osd.h"
 
 #include "io/displayport_rcdevice.h"
 #include "io/osd.h"
@@ -37,7 +38,7 @@
 
 #include "fc/config.h"
 
-#if defined(USE_RCSPLIT)
+#if defined(USE_RCDEVICE)
 
 displayPort_t rcdeviceOSDDisplayPort;
 
@@ -71,4 +72,4 @@ displayPort_t *rcdeviceDisplayPortInit(const vcdProfile_t *vcdProfile)
     }
 }
 
-#endif  // defined(USE_RCSPLIT)
+#endif  // defined(USE_RCDEVICE)

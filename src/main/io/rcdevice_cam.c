@@ -30,7 +30,8 @@
  #include "config/parameter_group_ids.h"
  #include "config/parameter_group.h"
  #include "io/rcdevice_cam.h"
- 
+ #include "io/beeper.h"
+
  #include "fc/rc_controls.h"
  #include "fc/runtime_config.h"
  #include "fc/config.h"
@@ -72,7 +73,7 @@
                  continue;
              }
  
-             uint8_t behavior = 0;
+             uint8_t behavior = RCDEVICE_PROTOCOL_UNKNOWN_CAMERA_OPERATION;
              switch (i) {
              case BOXCAMERA1:
                  if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON))
@@ -89,9 +90,9 @@
             default:
                 break;
              }
-             if (behavior != 0) {
-                 runcamDeviceSimulateCameraButton(camDevice, behavior);
-                 switchStates[switchIndex].isActivated = true;
+             if (behavior != RCDEVICE_PROTOCOL_UNKNOWN_CAMERA_OPERATION) {
+                //  runcamDeviceSimulateCameraButton(camDevice, behavior);
+                //  switchStates[switchIndex].isActivated = true;
              }
          } else {
              switchStates[switchIndex].isActivated = false;

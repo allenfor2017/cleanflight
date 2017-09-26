@@ -150,6 +150,7 @@ FC_SRC = \
             io/displayport_msp.c \
             io/displayport_oled.c \
             io/displayport_opentco.c \
+            io/displayport_rcdevice.c \
             io/gps.c \
             io/ledstrip.c \
             io/osd.c \

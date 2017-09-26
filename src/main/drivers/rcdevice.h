@@ -31,21 +31,6 @@
  // camera button simulation
  #define RCDEVICE_PROTOCOL_COMMAND_CAMERA_BTN_SIMULATION             0x01
  // 5 key osd cable simulation
-<<<<<<< HEAD
-#define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
-#define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
-#define RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION                   0x04
-// device setting access
-#define RCDEVICE_PROTOCOL_COMMAND_GET_SETTINGS                      0x10
-#define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL               0x11
-#define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING                      0x12
-#define RCDEVICE_PROTOCOL_COMMAND_WRITE_SETTING                     0x13
-// display port support
-#define RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION                  0x20
-#define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x21
-#define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING            0x22
-#define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x24
-=======
  #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
  #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
  #define RCDEVICE_PROTOCOL_COMMAND_5KEY_CONNECTION                   0x04
@@ -59,7 +44,7 @@
  #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x21
  #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING            0x22
  #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x24
->>>>>>> f563b89a7b5c830cd1308888a3e879b99a6b5819
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHARS                  0x25
  
  
  // Feature Flag sets, it's a uint16_t flag
@@ -75,6 +60,7 @@
  #define RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN         0x00
  #define RCDEVICE_PROTOCOL_SIMULATE_POWER_BTN        0x01
  #define RCDEVICE_PROTOCOL_CHANGE_MODE               0x02
+ #define RCDEVICE_PROTOCOL_UNKNOWN_CAMERA_OPERATION  0xFF
  
  
  // Operation Of 5 Key OSD Cable Simulation
@@ -88,6 +74,32 @@
  #define RCDEVICE_PROTOCOL_5KEY_FUNCTION_OPEN        0x01
  #define RCDEVICE_PROTOCOL_5KEY_FUNCTION_CLOSE       0x02
  
+ // packet header and tail
+
+#define RCSPLIT_PACKET_HEADER    0x55
+#define RCSPLIT_PACKET_CMD_CTRL  0x01
+#define RCSPLIT_PACKET_TAIL      0xaa
+
+typedef enum {
+    RCSPLIT_CTRL_ARGU_INVALID = 0x0,
+    RCSPLIT_CTRL_ARGU_WIFI_BTN = 0x1,
+    RCSPLIT_CTRL_ARGU_POWER_BTN = 0x2,  
+    RCSPLIT_CTRL_ARGU_CHANGE_MODE = 0x3,
+    RCSPLIT_CTRL_ARGU_WHO_ARE_YOU = 0xFF,
+} rcsplit_ctrl_argument_e;
+
+typedef enum {
+    RCDEVICE_CAM_KEY_NONE,
+    RCDEVICE_CAM_KEY_ENTER,
+    RCDEVICE_CAM_KEY_LEFT,
+    RCDEVICE_CAM_KEY_UP,
+    RCDEVICE_CAM_KEY_RIGHT,
+    RCDEVICE_CAM_KEY_DOWN,
+    RCDEVICE_CAM_KEY_LEFT_LONG,
+    RCDEVICE_CAM_KEY_RIGHT_AND_TOP,
+    RCDEVICE_CAM_KEY_RELEASE,
+} rcdeviceCamSimulationKeyEvent_e;
+
  typedef enum {
      RCDEVICE_PROTOCOL_RCSPLIT_VERSION       = 0x00, // this is used to indicate the device that using rcsplit firmware version that <= 1.1.0
      RCDEVICE_PROTOCOL_VERSION_1_0           = 0x01,
@@ -98,7 +110,7 @@
  typedef enum {
      RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET        = 0,
      RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS        = 1,
-     RCDEVICE_PROTOCOL_SETTINGID_RESERVED2           = 2,
+     RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE        = 2,
      RCDEVICE_PROTOCOL_SETTINGID_RESERVED3           = 3,
      RCDEVICE_PROTOCOL_SETTINGID_RESERVED4           = 4,
      RCDEVICE_PROTOCOL_SETTINGID_RESERVED5           = 5,
@@ -123,11 +135,11 @@
      RCDEVICE_PROTOCOL_SETTINGTYPE_INT8              = 1,
      RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16            = 2,
      RCDEVICE_PROTOCOL_SETTINGTYPE_INT16             = 3,
-     RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT             = 4,
-     RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION    = 5,
-     RCDEVICE_PROTOCOL_SETTINGTYPE_STRING            = 6,
-     RCDEVICE_PROTOCOL_SETTINGTYPE_FOLDER            = 7,
-     RCDEVICE_PROTOCOL_SETTINGTYPE_INFO              = 8,
+     RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT             = 8,
+     RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION    = 9,
+     RCDEVICE_PROTOCOL_SETTINGTYPE_STRING            = 10,
+     RCDEVICE_PROTOCOL_SETTINGTYPE_FOLDER            = 11,
+     RCDEVICE_PROTOCOL_SETTINGTYPE_INFO              = 12,
      RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN
  } rcdeviceSettingType_e;
  
@@ -196,10 +208,4 @@
  void runcamDeviceReleaseSetting(runcamDeviceSetting_t *settingList);
  bool runcamDeviceGetSettingDetail(runcamDevice_t *device, uint8_t settingID, runcamDeviceSettingDetail_t **outSettingDetail);
  void runcamDeviceReleaseSettingDetail(runcamDeviceSettingDetail_t *settingDetail);
-<<<<<<< HEAD
  bool runcamDeviceWriteSetting(runcamDevice_t *device, uint8_t settingID, uint8_t *data, uint8_t dataLen, runcamDeviceWriteSettingResponse_t **response);
-
- 
-=======
- bool runcamDeviceWriteSetting(runcamDevice_t *device, uint8_t settingID, uint8_t *data, uint8_t dataLen, runcamDeviceWriteSettingResponse_t **response);
->>>>>>> f563b89a7b5c830cd1308888a3e879b99a6b5819

@@ -42,6 +42,7 @@ extern "C" {
     #include "scheduler/scheduler.h"
     #include "drivers/serial.h"
     #include "drivers/rcdevice.h"
+    #include "drivers/max7456_symbols.h"
 
     #include "rx/rx.h"
 
@@ -72,8 +73,9 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     testData.isAllowBufferReadWrite = true;
     testData.maxTimesOfRespDataAvailable = 0;
     // uint8_t data[] = { 0xcc, 0x56, 0x65, 0x72, 0x31, 0x2e, 0x30, 0x35, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x37, 0x5e };
-    uint8_t data[] = { 0xCC, 0x52, 0x55, 0x4E, 0x43, 0x41, 0x4D, 0x20, 0x33, 0x2E, 0x30, 0x01, 0x08, 0x00, 0x83 };
+    // uint8_t data[] = { 0xCC, 0x52, 0x55, 0x4E, 0x43, 0x41, 0x4D, 0x20, 0x33, 0x2E, 0x30, 0x01, 0x08, 0x00, 0x83 };
     // uint8_t data[] = { 0xCC , 0x56 , 0x31 , 0x2E , 0x31 , 0x2E , 0x30 , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 , 0x00 , 0x01 , 0x01 , 0x00, 0xaa, 0xcc, 0x00, 0x1d, 0x00, 0x43, 0x68, 0x61, 0x72, 0x73, 0x65, 0x74, 0x00, 0x42, 0x46, 0x00, 0x01, 0x41, 0x45, 0x00, 0x31, 0x32, 0x00, 0x02, 0x46, 0x4f, 0x56, 0x00, 0x57, 0x69, 0x64, 0x65, 0x00, 0x21};
+    uint8_t data[] = { 0xCC, 0x56, 0x31, 0x2E, 0x31, 0x2E, 0x30, 0x00, 0x00, 0x00, 0x00, 0x01, 0x37, 0x00, 0x82 };
     testData.responesBuf = (uint8_t*)malloc(sizeof(data));
     testData.responseDataLen = sizeof(data);
     testData.maxTimesOfRespDataAvailable = testData.responseDataLen;
@@ -100,15 +102,16 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     printf("\n");
 
     printf("prepare fill region:\n");
-    runcamDeviceDispFillRegion(&device, 3, 3, 5, 5, 'E');
+    runcamDeviceDispFillRegion(&device, 16, 3, 5, 5, 'E');
     printf("\n");
 
     printf("prepare write char:\n");
-    runcamDeviceDispWriteChar(&device, 10, 10, 'Q');
+    runcamDeviceDispWriteChar(&device, 13, 4, '0');
     printf("\n");
 
+
     printf("prepare write string:\n");
-    runcamDeviceDispWriteString(&device, 2, 2, "hahahaAAII");
+    runcamDeviceDispWriteString(&device, 12, 6, "CCd V");
     printf("\n");
 
     printf("prepare get settings of root level:\n");
@@ -133,15 +136,15 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     printf("prepare get setting charset detail:\n");
     runcamDeviceSettingDetail_t *settingDetail = NULL;
     // uint8_t data3[] = { 0xcc, 0x00, 0x01, 0x00, 0xF2, 0x02, 0x73 };
-    uint8_t data3[] = { 0xcc, 0x00, 0x04, 0x11, 0x57,  0x0A, 0x00, 0x02, 0xba };
+    uint8_t data3[] = { 0xCC, 0x00, 0x09, 0x00, 0x00, 0x01, 0x42, 0x46, 0x3B, 0x43, 0x46, 0x00, 0x1A };
     testData.responesBuf = (uint8_t*)malloc(sizeof(data3));
     testData.responseDataLen = sizeof(data3);
     testData.maxTimesOfRespDataAvailable = testData.responseDataLen;
     memcpy(testData.responesBuf, data3, sizeof(data3));
-    r = runcamDeviceGetSettingDetail(&device, 0, &settingDetail);
+    r = runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail);
     EXPECT_EQ(r, true);
     if (r) {
-        printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize));
+        // printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize));
         // printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x， decimal point:%04x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize), settingDetail->decimalPoint);
         runcamDeviceReleaseSettingDetail(settingDetail);
         printf("\n");
@@ -203,6 +206,21 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     runcamDeviceWriteSettingResponse_t *response;
     runcamDeviceWriteSetting(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &newval, sizeof(uint8_t), &response);
     printf("\n");
+
+
+    printf("draw logo:\n");
+    // display logo and help
+    int fontOffset = 160;
+    int x = 3;
+    int y = 1;
+    for (int row = 0; row < 4; row++) {
+        for (int column = 0; column < 24; column++) {
+            if (fontOffset <= SYM_END_OF_FONT) {
+                runcamDeviceDispWriteChar(&device, x + column, y + row, fontOffset++);
+            }
+        }
+    }
+    printf("draw logo end:\n");
 }
 
 extern "C" {
