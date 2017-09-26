@@ -61,6 +61,7 @@
 
 // For VISIBLE*
 #include "io/osd.h"
+#include "io/rcdevice_cam.h"
 
 #include "rx/rx.h"
 
@@ -996,9 +997,16 @@ void cmsUpdate(uint32_t currentTimeUs)
 }
 
 void cmsHandler(timeUs_t currentTimeUs)
-{
+{    
+
     if (cmsDeviceCount < 0)
         return;
+
+#ifdef USE_RCDEVICE
+    if(rcdeviceInMenu){
+        return ;
+    }
+#endif
 
     static timeUs_t lastCalledUs = 0;
 

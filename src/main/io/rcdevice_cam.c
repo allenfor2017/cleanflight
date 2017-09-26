@@ -40,7 +40,7 @@
  #define IS_MID(X) (rcData[X] > 1250 && rcData[X] < 1750)
  static runcamDevice_t runcamDevice;
  runcamDevice_t *camDevice = &runcamDevice;
- 
+
  rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
 
  timeUs_t lastTimeUs = 0;
@@ -232,11 +232,7 @@
          isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE)) {
          rcdeviceCamProcessMode();
      }
-    
-    //  if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
-    //     rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
-    //  }
-
+     
  }
  
  bool rcdeviceCamInit(void)
