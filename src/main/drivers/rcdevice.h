@@ -202,6 +202,7 @@ typedef enum {
  void runcamDeviceDispFillRegion(runcamDevice_t *device, uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint8_t c);
  void runcamDeviceDispWriteChar(runcamDevice_t *device, uint8_t x, uint8_t y, uint8_t c);
  void runcamDeviceDispWriteString(runcamDevice_t *device, uint8_t x, uint8_t y, const char *text);
+ void runcamDeviceDispWriteChars(runcamDevice_t *device, uint8_t *data, uint8_t datalen);
  
  // Device Setting Access
  bool runcamDeviceGetSettings(runcamDevice_t *device, uint8_t parentSettingID, runcamDeviceSetting_t **outSettingList);

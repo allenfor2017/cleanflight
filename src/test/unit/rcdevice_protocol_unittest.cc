@@ -136,12 +136,12 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     printf("prepare get setting charset detail:\n");
     runcamDeviceSettingDetail_t *settingDetail = NULL;
     // uint8_t data3[] = { 0xcc, 0x00, 0x01, 0x00, 0xF2, 0x02, 0x73 };
-    uint8_t data3[] = { 0xCC, 0x00, 0x09, 0x00, 0x00, 0x01, 0x42, 0x46, 0x3B, 0x43, 0x46, 0x00, 0x1A };
+    uint8_t data3[] = { 0xCC, 0x00, 0x00, 0x1E, 0x1E, 0x1E, 0x01, 0xDF };
     testData.responesBuf = (uint8_t*)malloc(sizeof(data3));
     testData.responseDataLen = sizeof(data3);
     testData.maxTimesOfRespDataAvailable = testData.responseDataLen;
     memcpy(testData.responesBuf, data3, sizeof(data3));
-    r = runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &settingDetail);
+    r = runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail);
     EXPECT_EQ(r, true);
     if (r) {
         // printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize));
@@ -221,6 +221,10 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
         }
     }
     printf("draw logo end:\n");
+
+    printf("draw chars:\n");
+    uint8_t chars[] = { 1, 1, 'C', 2, 2, 'D', 3, 3, 'E' };
+    runcamDeviceDispWriteChars(&device, chars, sizeof(chars));
 }
 
 extern "C" {

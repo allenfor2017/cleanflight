@@ -95,22 +95,26 @@
             uint8_t c = serialRead(device->serialPort);
             crc = crc8_dvb_s2(crc, c);
             data[dataPos++] = c;
+            printf("%02x ", c);
         }
 
-        // if (dataPos >= expectedDataLen)
-        //     break;
+        if (dataPos >= expectedDataLen)
+            break;
     }
-     
+    
      // check crc
-     if (crc != 0) return false;
+     if (crc != 0){ printf("crc error\n");return false;};
  
      uint8_t protocolVersion = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH];
+     
      if (protocolVersion >= RCDEVICE_PROTOCOL_UNKNOWN) return false;
  
+     
      memset(device->info.firmwareVersion, 0, RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH);
+
      memcpy(device->info.firmwareVersion, data, RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH);
      device->info.protocolVersion = protocolVersion;
- 
+     
      uint8_t featureLowBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 1];
      uint8_t featureHighBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 2];
      device->info.features = (featureHighBits << 8) | featureLowBits;
@@ -132,7 +136,7 @@
             dataLen++;
          }
 
-        //  if (dataLen >= 1) break;
+         if (dataLen >= 1) break;
      }
  
      if (crc != 0) return false;
@@ -156,7 +160,7 @@
             data[dataPos++] = c;
          }
          
-        //  if (dataPos >= expectedDataLen) break;
+         if (dataPos >= expectedDataLen) break;
      }
  
      if (crc != 0) return false;
@@ -288,7 +292,7 @@
                 switch (settingType) {
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT8:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
-                    packetReceiveDone = dataPos >= 6;
+                    packetReceiveDone = dataPos >= 7;
                     break;
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
@@ -633,6 +637,20 @@
  
      free(paramsBuf);
      paramsBuf = NULL;
+ }
+
+ void runcamDeviceDispWriteChars(runcamDevice_t *device, uint8_t *data, uint8_t datalen)
+ {
+    uint8_t paramsBufLen = datalen + 1;
+    uint8_t *paramsBuf = (uint8_t*)malloc(paramsBufLen);
+    
+    paramsBuf[0] = datalen;
+    memcpy(paramsBuf + 1, data, datalen);
+    
+    runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHARS, paramsBuf, paramsBufLen);
+
+    free(paramsBuf);
+    paramsBuf = NULL;
  }
  
  static bool runcamDeviceDecodeSettings(sbuf_t *buf, runcamDeviceSetting_t **outSettingList)

@@ -37,7 +37,7 @@
 #include "sensors/gyroanalyse.h"
 #include "io/beeper.h"
 
-#define MAX_CHARS2UPDATE    100
+#define MAX_CHARS2UPDATE    20
 
 static uint8_t columnCount = 30;
 
@@ -52,6 +52,8 @@ static uint8_t shadowBuffer[VIDEO_BUFFER_CHARS_PAL];
 static bool  max7456Lock        = false;
 static uint16_t maxScreenSize = VIDEO_BUFFER_CHARS_PAL;
 
+// #define USE_PARTICLE_DRAW
+
 bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
 {
     if (!runcamDeviceInit(osdDevice)) {
@@ -63,21 +65,20 @@ bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
     }
 
     // get screen column count
-    // runcamDeviceSettingDetail_t *settingDetail;
-    // if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail)) {
-    //     featureClear(FEATURE_SONAR);
-    //     return false;
-    // }
+    runcamDeviceSettingDetail_t *settingDetail;
+    if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail)) {
+        return false;
+    }
     
     // columnCount = *(settingDetail->value);
-    columnCount = 30;    
+    columnCount = 30;
 
     video_system = vcdProfile->video_system;
     if (video_system == VIDEO_SYSTEM_AUTO) {
         // fetch current video mode from device
         runcamDeviceSettingDetail_t *settingDetail;
         if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &settingDetail)) {
-            featureClear(FEATURE_SONAR);
+            // featureClear(FEATURE_SONAR);
             return false;
         }
 
@@ -128,54 +129,61 @@ int rcdeviceOSDRelease(displayPort_t *displayPort)
 
 int rcdeviceOSDDrawScreen(displayPort_t *displayPort)
 {
-    // static uint16_t pos = 0;
-    // int k = 0;
+#ifdef USE_PARTICLE_DRAW
+    static uint16_t pos = 0;
+    int k = 0;
 
-    // if (!max7456Lock) {
-    //     max7456Lock = true;
+    if (!max7456Lock) {
+        max7456Lock = true;
 
-    //     for (k=0; k< MAX_CHARS2UPDATE; k++) {
-    //         if (screenBuffer[pos] != shadowBuffer[pos]) {
-    //             shadowBuffer[pos] = screenBuffer[pos];
-    //             uint8_t x = pos % columnCount;
-    //             uint8_t y = pos / columnCount;
-    //             runcamDeviceDispWriteChar(osdDevice, x, y, screenBuffer[pos]);
+        uint8_t data[60];
+        uint8_t dataLen = 0;
+        for (k=0; k< MAX_CHARS2UPDATE; k++) {
+            if (screenBuffer[pos] != shadowBuffer[pos]) {
+                shadowBuffer[pos] = screenBuffer[pos];
+                uint8_t x = pos % columnCount;
+                uint8_t y = pos / columnCount;
+                // runcamDeviceDispWriteChar(osdDevice, x, y, screenBuffer[pos]);
+                data[dataLen++] = x;
+                data[dataLen++] = y;
+                data[dataLen++] = screenBuffer[pos];
+            }
 
-    //             k++;
-    //         }
-
-    //         if (++pos >= maxScreenSize) {
-    //             pos = 0;
-    //             break;
-    //         }
-    //     }
-
+            if (++pos >= maxScreenSize) {
+                pos = 0;
+                break;
+            }
+        }
+        runcamDeviceDispWriteChars(osdDevice, data, dataLen);
     
-    //     max7456Lock = false;
-
-    //     beeperConfirmationBeeps(1);
-    // }
-
+        max7456Lock = false;
+    }
+#endif
     return 0;
 }
 
 int rcdeviceOSDWriteString(displayPort_t *displayPort, uint8_t x, uint8_t y, const char *buff)
 {
     UNUSED(displayPort);
+#if !defined(USE_PARTICLE_DRAW)
     runcamDeviceDispWriteString(osdDevice, x, y, buff);
-    // uint8_t i = 0;
-    // for (i = 0; *(buff+i); i++)
-    //     if (x+i < columnCount) // Do not write over screen
-    //         screenBuffer[y*columnCount+x+i] = *(buff+i);
-
+#else
+    uint8_t i = 0;
+    for (i = 0; *(buff+i); i++)
+        if (x+i < columnCount) // Do not write over screen
+            screenBuffer[y*columnCount+x+i] = *(buff+i);
+#endif
     return 0;
 }
 
 int rcdeviceOSDWriteChar(displayPort_t *displayPort, uint8_t x, uint8_t y, uint8_t c)
 {
     UNUSED(displayPort);
+#if !defined(USE_PARTICLE_DRAW)
     runcamDeviceDispWriteChar(osdDevice, x, y, c);
-    // screenBuffer[y*columnCount+x] = c;
+#else
+    screenBuffer[y*columnCount+x] = c;
+#endif
 
     return 0;
 }
@@ -184,12 +192,17 @@ int rcdeviceOSDWriteChar(displayPort_t *displayPort, uint8_t x, uint8_t y, uint8
 int  rcdeviceOSDClearScreen(displayPort_t *displayPort)
 {
     UNUSED(displayPort);
-    runcamDeviceDispFillRegion(osdDevice, 0, 0, 255, 255, ' ');
-
+    
+#if defined(USE_PARTICLE_DRAW)
     uint16_t x;
     uint32_t *p = (uint32_t*)&screenBuffer[0];
     for (x = 0; x < VIDEO_BUFFER_CHARS_PAL/4; x++)
         p[x] = 0x20202020;
+
+    // beeperConfirmationBeeps(1);
+#else
+    runcamDeviceDispFillRegion(osdDevice, 0, 0, 255, 255, ' ');
+#endif
 
     return 0;
 }
