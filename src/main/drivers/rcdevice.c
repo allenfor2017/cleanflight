@@ -90,14 +90,12 @@
 
     // wait 1000ms for reply
     timeMs_t timeout = millis() + 1000;
-    while (millis() < timeout) {
+    while (millis() < timeout && dataPos < expectedDataLen) {
         if(serialRxBytesWaiting(device->serialPort) > 0){
             uint8_t c = serialRead(device->serialPort);
             crc = crc8_dvb_s2(crc, c);
             data[dataPos++] = c;
         }
-
-        if(crc == 0) break;
     }
      
      // check crc
@@ -235,11 +233,28 @@
      if (settingType >= RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN) {
          printf("settingType incorrect\n");
          return false;
+     } else if (settingType == RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION) {
+        uint8_t c = 0;
+        c = serialRead(device->serialPort); // read current value
+        crc = crc8_dvb_s2(crc, c);
+        printf("%02x ", c);
+        data[dataPos++] = c;
+
+        c = serialRead(device->serialPort); // read min value
+        crc = crc8_dvb_s2(crc, c);
+        printf("%02x ", c);
+        data[dataPos++] = c;
+
+        c = serialRead(device->serialPort); // read max value
+        crc = crc8_dvb_s2(crc, c);
+        printf("%02x ", c);
+        data[dataPos++] = c;
      }
  
+     bool isFoundANullTeminatedChar = false;
      while (serialRxBytesWaiting(device->serialPort) > 0) {
          uint8_t c = serialRead(device->serialPort);
-         printf("%02x ", c);
+         printf("[%02x] ", c);
          crc = crc8_dvb_s2(crc, c);
          data[dataPos++] = c;
  
@@ -258,7 +273,15 @@
              break;
          case RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION:
          case RCDEVICE_PROTOCOL_SETTINGTYPE_STRING:
-             packetReceiveDone = (c == 0) || dataPos >= 63;
+            if (isFoundANullTeminatedChar) {
+                packetReceiveDone = true;
+                printf("found\n");
+            } else if (dataPos >= 63)
+                packetReceiveDone = true;
+
+            if (c == 0)
+                isFoundANullTeminatedChar = true;
+
              break;
          case RCDEVICE_PROTOCOL_SETTINGTYPE_FOLDER:
              packetReceiveDone = dataPos >= 3;
@@ -267,9 +290,12 @@
              packetReceiveDone = dataPos >= 3;
              break;
          }
- 
+
          if (packetReceiveDone)
              break;
+
+        timeMs_t timeout = millis() + 100;
+        while (millis() < timeout) {}
      }
      printf("\n");
  
@@ -280,7 +306,7 @@
  
      if (outputBufferLen && (*outputBufferLen >= (dataPos - 1)) && outputBuffer) {
          memcpy(outputBuffer, data, dataPos - 1); // return the data expect the crc field
-         *outputBufferLen = dataPos - 1;
+        *outputBufferLen = dataPos - 1;
      }
  
      return true;
@@ -411,22 +437,22 @@
      // The detect logic is: Send 'who are you' command to device to detect the device is using 
      // rcsplit firmware 1.1, if so, then mark the device protocol version 
      // as RCDEVICE_PROTOCOL_RCSPLIT_VERSION
-     runcamDeviceFlushRxBuffer(device);
-     rcsplitSendCtrlCommand(device, RCSPLIT_CTRL_ARGU_WHO_ARE_YOU);
-     uint8_t data[5];
-     uint8_t dataPos = 0;
-     while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < 5) {
-         uint8_t c = serialRead(device->serialPort);
-         data[dataPos++] = c;
-     }
-     // swap the tail field and crc field, and verify the crc
-     uint8_t t = data[3];
-     data[3] = data[4];
-     data[4] = t;
-     if (crc_high_first(data, 5) == 0) {
-         device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
-         return true;
-     }
+    //  runcamDeviceFlushRxBuffer(device);
+    //  rcsplitSendCtrlCommand(device, RCSPLIT_CTRL_ARGU_WHO_ARE_YOU);
+    //  uint8_t data[5];
+    //  uint8_t dataPos = 0;
+    //  while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < 5) {
+    //      uint8_t c = serialRead(device->serialPort);
+    //      data[dataPos++] = c;
+    //  }
+    //  // swap the tail field and crc field, and verify the crc
+    //  uint8_t t = data[3];
+    //  data[3] = data[4];
+    //  data[4] = t;
+    //  if (crc_high_first(data, 5) == 0) {
+    //      device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
+    //      return true;
+    //  }
  
      // try to send RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO to device, 
      // if the response is expected, then mark the device protocol version as RCDEVICE_PROTOCOL_VERSION_1_0
@@ -568,10 +594,10 @@
      if (textLen > 60) // if text len more then 60 chars, cut it to 60
          textLen = 60;
  
-     uint8_t paramsBufLen = 2 + textLen;
+     uint8_t paramsBufLen = 3 + textLen;
      uint8_t *paramsBuf = (uint8_t*)malloc(paramsBufLen);
      
-     paramsBuf[0] = textLen + 2;
+     paramsBuf[0] = paramsBufLen - 1;
      paramsBuf[1] = x;
      paramsBuf[2] = y;
      memcpy(paramsBuf + 3, text, textLen);
@@ -785,11 +811,10 @@
          break;
      case RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT:
      {
-         uint8_t size = sizeof(float);
          float minValue = sbufReadU8(buf);
          float maxValue = sbufReadU8(buf);
          uint16_t decimalPoint = sbufReadU16(buf);
-         uint32_t stepSize = sbufReadU8(buf);
+         uint8_t stepSize = sbufReadU8(buf);
  
          settingDetail->minValue = (uint8_t*)malloc(sizeof(uint8_t));
          settingDetail->maxValue = (uint8_t*)malloc(sizeof(uint8_t));

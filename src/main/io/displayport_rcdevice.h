@@ -16,26 +16,6 @@
  */
 
 #pragma once
-
-#include "drivers/rcdevice.h"
-#include "fc/rc_modes.h"
-#include "common/time.h"
-
-typedef struct {
-    uint8_t boxId;
-    bool isActivated;
-} rcdevice_cam_switch_state_t;
-
-extern runcamDevice_t *camDevice;
-bool rcdeviceInMenu;
-
-bool rcdeviceCamInit(void);
-void rcdeviceCamProcess(timeUs_t currentTimeUs);
-
-bool isRcdeviceCamReady();
-bool isFeatureSupported(uint8_t feature);
-void rcdeviceCamProcessMode();
-void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs);
-
-// used for unit test
-rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
+ 
+struct vcdProfile_s;
+displayPort_t *rcdeviceDisplayPortInit(const struct vcdProfile_s *vcdProfile);

@@ -141,11 +141,14 @@ FC_SRC = \
             drivers/serial_escserial.c \
             drivers/sonar_hcsr04.c \
             drivers/vtx_common.c \
+            drivers/rcdevice.c \
+            drivers/rcdevice_osd.c \
             flight/navigation.c \
             io/dashboard.c \
             io/displayport_max7456.c \
             io/displayport_msp.c \
             io/displayport_oled.c \
+            io/displayport_rcdevice.h \
             io/gps.c \
             io/ledstrip.c \
             io/osd.c \
@@ -168,8 +171,7 @@ FC_SRC = \
             io/vtx_smartaudio.c \
             io/vtx_tramp.c \
             io/vtx_control.c \
-            drivers/rcdevice.c \
-            io/rcdevice_5key_simulation.c 
+            io/rcdevice_5key_simulation.c
 
 COMMON_DEVICE_SRC = \
             $(CMSIS_SRC) \
