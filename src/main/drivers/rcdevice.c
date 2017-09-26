@@ -40,45 +40,45 @@
      RCDP_SETTING_PARSE_WAITING_VALUE,
  } runcamDeviceSettingParseStep_e;
 
- // the crc calc function for rcsplit 1.0 and 1.1, this function will deprecate in feature
- static uint8_t crc_high_first(uint8_t *ptr, uint8_t len)
- {
-     uint8_t i;
-     uint8_t crc=0x00;
-     while (len--) {
-         crc ^= *ptr++;
-         for (i=8; i>0; --i) {
-             if (crc & 0x80)
-                 crc = (crc << 1) ^ 0x31;
-             else
-                 crc = (crc << 1);
-         }
-     }
-     return (crc);
- }
+//  // the crc calc function for rcsplit 1.0 and 1.1, this function will deprecate in feature
+//  static uint8_t crc_high_first(uint8_t *ptr, uint8_t len)
+//  {
+//      uint8_t i;
+//      uint8_t crc=0x00;
+//      while (len--) {
+//          crc ^= *ptr++;
+//          for (i=8; i>0; --i) {
+//              if (crc & 0x80)
+//                  crc = (crc << 1) ^ 0x31;
+//              else
+//                  crc = (crc << 1);
+//          }
+//      }
+//      return (crc);
+//  }
  
- // a send packet method for rcsplit 1.0 and 1.1, this function will deprecate in feature
- static void rcsplitSendCtrlCommand(runcamDevice_t *device, rcsplit_ctrl_argument_e argument)
- {
-     if (!device->serialPort)
-         return ;
+//  // a send packet method for rcsplit 1.0 and 1.1, this function will deprecate in feature
+//  static void rcsplitSendCtrlCommand(runcamDevice_t *device, rcsplit_ctrl_argument_e argument)
+//  {
+//      if (!device->serialPort)
+//          return ;
  
-     uint8_t uart_buffer[5] = {0};
-     uint8_t crc = 0;
+//      uint8_t uart_buffer[5] = {0};
+//      uint8_t crc = 0;
  
-     uart_buffer[0] = RCSPLIT_PACKET_HEADER;
-     uart_buffer[1] = RCSPLIT_PACKET_CMD_CTRL;
-     uart_buffer[2] = argument;
-     uart_buffer[3] = RCSPLIT_PACKET_TAIL;
-     crc = crc_high_first(uart_buffer, 4);
+//      uart_buffer[0] = RCSPLIT_PACKET_HEADER;
+//      uart_buffer[1] = RCSPLIT_PACKET_CMD_CTRL;
+//      uart_buffer[2] = argument;
+//      uart_buffer[3] = RCSPLIT_PACKET_TAIL;
+//      crc = crc_high_first(uart_buffer, 4);
  
-     // build up a full request [header]+[command]+[argument]+[crc]+[tail]
-     uart_buffer[3] = crc;
-     uart_buffer[4] = RCSPLIT_PACKET_TAIL;
+//      // build up a full request [header]+[command]+[argument]+[crc]+[tail]
+//      uart_buffer[3] = crc;
+//      uart_buffer[4] = RCSPLIT_PACKET_TAIL;
  
-     // write to device
-     serialWriteBuf(device->serialPort, uart_buffer, 5);
- }
+//      // write to device
+//      serialWriteBuf(device->serialPort, uart_buffer, 5);
+//  }
  
  // decode the device info
  static bool runcamDeviceReceiveDeviceInfo(runcamDevice_t *device)
@@ -97,7 +97,8 @@
             data[dataPos++] = c;
         }
 
-        if(crc == 0) break;
+        // if (dataPos >= expectedDataLen)
+        //     break;
     }
      
      // check crc
@@ -123,12 +124,15 @@
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
 
      timeMs_t timeout = millis() + 1000;
+     uint8_t dataLen = 0;
      while (millis() < timeout) {
          if(serialRxBytesWaiting(device->serialPort) > 0){
             uint8_t c = serialRead(device->serialPort);
             crc = crc8_dvb_s2(crc, c);
+            dataLen++;
          }
-         if(crc == 0) break;
+
+        //  if (dataLen >= 1) break;
      }
  
      if (crc != 0) return false;
@@ -151,7 +155,8 @@
             crc = crc8_dvb_s2(crc, c);
             data[dataPos++] = c;
          }
-         if(crc == 0) break;
+         
+        //  if (dataPos >= expectedDataLen) break;
      }
  
      if (crc != 0) return false;
@@ -218,69 +223,117 @@
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
      uint8_t settingType = RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN;
  
-     printf("starting to receive setting detail: %02x ", RCDEVICE_PROTOCOL_HEADER);
-     if (serialRxBytesWaiting(device->serialPort) > 0) {
-         // skip the remaining chunk count to get the setting data length
-         uint8_t c = serialRead(device->serialPort);
-         crc = crc8_dvb_s2(crc, c);
-         data[dataPos++] = c;
-         printf("%02x ", c);
- 
-         settingType = serialRead(device->serialPort);
-         crc = crc8_dvb_s2(crc, settingType);
-         data[dataPos++] = settingType;
-         printf("%02x ", settingType);
+     timeMs_t timeout = millis() + 1000;
+     uint8_t step = 0;
+     bool isFoundANullTeminatedChar = false;
+     bool packetReceiveDone = false;
+     while (millis() < timeout) {        
+        switch (step) {
+        case 0:
+            if (serialRxBytesWaiting(device->serialPort) >= 2) {
+                // skip the remaining chunk count to get the setting data length
+                uint8_t c = serialRead(device->serialPort);
+                crc = crc8_dvb_s2(crc, c);
+                data[dataPos++] = c;
+                printf("%02x ", c);
+        
+                settingType = serialRead(device->serialPort);
+                crc = crc8_dvb_s2(crc, settingType);
+                data[dataPos++] = settingType;
+                printf("%02x ", settingType);
+
+                if (settingType >= RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN) {
+                    printf("settingType incorrect\n");
+                    return false;
+                }
+
+                step = 1;
+            }
+            break;
+        case 1:
+        {
+            if (settingType == RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION) {
+                if (serialRxBytesWaiting(device->serialPort) >= 3) {
+                    uint8_t c = 0;
+                    c = serialRead(device->serialPort); // read current value
+                    crc = crc8_dvb_s2(crc, c);
+                    printf("%02x ", c);
+                    data[dataPos++] = c;
+            
+                    c = serialRead(device->serialPort); // read min value
+                    crc = crc8_dvb_s2(crc, c);
+                    printf("%02x ", c);
+                    data[dataPos++] = c;
+            
+                    c = serialRead(device->serialPort); // read max value
+                    crc = crc8_dvb_s2(crc, c);
+                    printf("%02x ", c);
+                    data[dataPos++] = c;
+                    step = 2;
+                }
+             } else {
+                 step = 2;
+             }
+
+        }
+            break;
+        case 2:
+        {
+            if (serialRxBytesWaiting(device->serialPort)) {
+                uint8_t c = serialRead(device->serialPort);
+                printf("[%02x] ", c);
+                crc = crc8_dvb_s2(crc, c);
+                data[dataPos++] = c;
+
+                switch (settingType) {
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT8:
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
+                    packetReceiveDone = dataPos >= 6;
+                    break;
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16:
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
+                    packetReceiveDone = dataPos >= 9;
+                    break;
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT:
+                    packetReceiveDone = dataPos >= 8;
+                    break;
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION:
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_STRING:
+                if (isFoundANullTeminatedChar) {
+                    packetReceiveDone = true;
+                    printf("found\n");
+                } else if (dataPos >= 63)
+                    packetReceiveDone = true;
+    
+                if (c == 0)
+                    isFoundANullTeminatedChar = true;
+    
+                    break;
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_FOLDER:
+                    packetReceiveDone = dataPos >= 3;
+                    break;
+                case RCDEVICE_PROTOCOL_SETTINGTYPE_INFO:
+                    packetReceiveDone = dataPos >= 3;
+                    break;
+                }
+            }
+        }
+            break;
+        }
+
+        if (packetReceiveDone)
+            break;
      }
- 
-     if (settingType >= RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN) {
-         printf("settingType incorrect\n");
-         return false;
-     }
- 
-     while (serialRxBytesWaiting(device->serialPort) > 0) {
-         uint8_t c = serialRead(device->serialPort);
-         printf("%02x ", c);
-         crc = crc8_dvb_s2(crc, c);
-         data[dataPos++] = c;
- 
-         bool packetReceiveDone = false;
-         switch (settingType) {
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT8:
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
-             packetReceiveDone = dataPos >= 6;
-             break;
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16:
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
-             packetReceiveDone = dataPos >= 9;
-             break;
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT:
-             packetReceiveDone = dataPos >= 8;
-             break;
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION:
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_STRING:
-             packetReceiveDone = (c == 0) || dataPos >= 63;
-             break;
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_FOLDER:
-             packetReceiveDone = dataPos >= 3;
-             break;
-         case RCDEVICE_PROTOCOL_SETTINGTYPE_INFO:
-             packetReceiveDone = dataPos >= 3;
-             break;
-         }
- 
-         if (packetReceiveDone)
-             break;
-     }
-     printf("\n");
  
      if (crc != 0) { 
          printf("crc incorrect\n");
+         featureClear(FEATURE_SONAR);
          return false;
      }
  
      if (outputBufferLen && (*outputBufferLen >= (dataPos - 1)) && outputBuffer) {
          memcpy(outputBuffer, data, dataPos - 1); // return the data expect the crc field
-         *outputBufferLen = dataPos - 1;
+        *outputBufferLen = dataPos - 1;
      }
  
      return true;
@@ -411,22 +464,22 @@
      // The detect logic is: Send 'who are you' command to device to detect the device is using 
      // rcsplit firmware 1.1, if so, then mark the device protocol version 
      // as RCDEVICE_PROTOCOL_RCSPLIT_VERSION
-     runcamDeviceFlushRxBuffer(device);
-     rcsplitSendCtrlCommand(device, RCSPLIT_CTRL_ARGU_WHO_ARE_YOU);
-     uint8_t data[5];
-     uint8_t dataPos = 0;
-     while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < 5) {
-         uint8_t c = serialRead(device->serialPort);
-         data[dataPos++] = c;
-     }
-     // swap the tail field and crc field, and verify the crc
-     uint8_t t = data[3];
-     data[3] = data[4];
-     data[4] = t;
-     if (crc_high_first(data, 5) == 0) {
-         device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
-         return true;
-     }
+    //  runcamDeviceFlushRxBuffer(device);
+    //  rcsplitSendCtrlCommand(device, RCSPLIT_CTRL_ARGU_WHO_ARE_YOU);
+    //  uint8_t data[5];
+    //  uint8_t dataPos = 0;
+    //  while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < 5) {
+    //      uint8_t c = serialRead(device->serialPort);
+    //      data[dataPos++] = c;
+    //  }
+    //  // swap the tail field and crc field, and verify the crc
+    //  uint8_t t = data[3];
+    //  data[3] = data[4];
+    //  data[4] = t;
+    //  if (crc_high_first(data, 5) == 0) {
+    //      device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
+    //      return true;
+    //  }
  
      // try to send RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO to device, 
      // if the response is expected, then mark the device protocol version as RCDEVICE_PROTOCOL_VERSION_1_0
@@ -558,10 +611,10 @@
      if (textLen > 60) // if text len more then 60 chars, cut it to 60
          textLen = 60;
  
-     uint8_t paramsBufLen = 2 + textLen;
+     uint8_t paramsBufLen = 3 + textLen;
      uint8_t *paramsBuf = (uint8_t*)malloc(paramsBufLen);
      
-     paramsBuf[0] = textLen + 2;
+     paramsBuf[0] = paramsBufLen - 1;
      paramsBuf[1] = x;
      paramsBuf[2] = y;
      memcpy(paramsBuf + 3, text, textLen);
@@ -775,11 +828,10 @@
          break;
      case RCDEVICE_PROTOCOL_SETTINGTYPE_FLOAT:
      {
-         uint8_t size = sizeof(float);
          float minValue = sbufReadU8(buf);
          float maxValue = sbufReadU8(buf);
          uint16_t decimalPoint = sbufReadU16(buf);
-         uint32_t stepSize = sbufReadU8(buf);
+         uint8_t stepSize = sbufReadU8(buf);
  
          settingDetail->minValue = (uint8_t*)malloc(sizeof(uint8_t));
          settingDetail->maxValue = (uint8_t*)malloc(sizeof(uint8_t));

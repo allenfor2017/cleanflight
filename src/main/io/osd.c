@@ -89,6 +89,12 @@
 
 #define VIDEO_BUFFER_CHARS_PAL    480
 
+#ifdef USE_MAX7456
+#define DEFAULT_OSD_DEVICE OSD_DEVICE_MAX7456
+#else
+#define DEFAULT_OSD_DEVICE OSD_DEVICE_NONE
+#endif
+
 const char * const osdTimerSourceNames[] = {
     "ON TIME  ",
     "TOTAL ARM",
@@ -837,6 +843,8 @@ void pgResetFn_osdConfig(osdConfig_t *osdConfig)
 
     osdConfig->ahMaxPitch = 20; // 20 degrees
     osdConfig->ahMaxRoll = 40; // 40 degrees
+    
+    osdConfig->device = DEFAULT_OSD_DEVICE;
 }
 
 static void osdDrawLogo(int x, int y)
@@ -1239,4 +1247,15 @@ void osdUpdate(timeUs_t currentTimeUs)
     }
 #endif
 }
+
+int osdRowCount()
+{
+    return osdDisplayPort->rows;
+}
+
+int osdColCount()
+{
+    return osdDisplayPort->cols;
+}
+
 #endif // OSD

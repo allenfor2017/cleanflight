@@ -75,7 +75,7 @@
                  continue;
              }
  
-             uint8_t behavior = RCDEVICE_PROTOCOL_SIMULATE_UNKNOWN;
+             uint8_t behavior = RCDEVICE_PROTOCOL_UNKNOWN_CAMERA_OPERATION;
              switch (i) {
              case BOXCAMERA1:
                  if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON))
@@ -92,7 +92,7 @@
             default:
                 break;
              }
-             if (behavior != RCDEVICE_PROTOCOL_SIMULATE_UNKNOWN) {
+             if (behavior != RCDEVICE_PROTOCOL_UNKNOWN_CAMERA_OPERATION) {
                  runcamDeviceSimulateCameraButton(camDevice, behavior);
                  switchStates[switchIndex].isActivated = true;
              }

@@ -279,6 +279,12 @@ huffman_unittest_DEFINES := \
 ringbuffer_unittest_SRC := \
 		$(USER_DIR)/common/ringbuffer.c
 
+rcdevice_protocol_unittest_SRC := \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/bitarray.c \
+		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/drivers/rcdevice.c
+
 # Please tweak the following variable definitions as needed by your
 # project, except GTEST_HEADERS, which you can use in your own targets
 # but shouldn't modify.
