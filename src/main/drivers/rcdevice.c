@@ -514,10 +514,8 @@
         else if(operationID == RCDEVICE_PROTOCOL_5KEY_FUNCTION_CLOSE){
             rcdeviceInMenu = false;
         }
-        return true;
     }
- 
-     return false;
+    return true;
  }
  
  // init the runcam device, it'll search the UART port with FUNCTION_RCDEVICE id
@@ -533,14 +531,6 @@
          device->serialPort = openSerialPort(portConfig->identifier, portID, NULL, 115200, MODE_RXTX, SERIAL_NOT_INVERTED);
          
          if (device->serialPort != NULL) {
-             if (isFirstTimeLoad) {
-                 // wait 400 ms if the device is not prepared(in booting)
-                 timeMs_t timeout = millis() + 400;
-                 while (millis() < timeout) {
-                 }
-                 isFirstTimeLoad = false;
-             }
- 
              // check the device is using rcsplit firmware 1.1(or 1.0) or 'RunCam Device Protocol', 
              // so we can access it in correct way.
              if (runcamDeviceVerify(device)) {
