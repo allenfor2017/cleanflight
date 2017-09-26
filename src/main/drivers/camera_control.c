@@ -150,12 +150,12 @@ void cameraControlInit(void)
 void cameraControlProcess(timeUs_t currentTimeUs)
 {
 
-#if defined(USE_RCDEVICE)
-    if (rcdeviceIs5KeySimulationReady()) {
-        rcdevice5KeySimulationProcessMode(currentTimeUs);
-        return;
-    }
-#endif
+// #if defined(USE_RCDEVICE)
+//     if (rcdeviceIs5KeySimulationReady()) {
+//         rcdevice5KeySimulationProcessMode(currentTimeUs);
+//         return;
+//     }
+// #endif
 
     if (endTimeMillis && currentTimeUs >= 1000 * endTimeMillis) {
         if (CAMERA_CONTROL_MODE_HARDWARE_PWM == cameraControlConfig()->mode) {
