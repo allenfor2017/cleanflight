@@ -142,6 +142,9 @@
  {
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
      if (serialRxBytesWaiting(device->serialPort) > 0) {
+        timeMs_t timeout = millis() + 100;
+        while (millis() < timeout) {}
+
          uint8_t c = serialRead(device->serialPort);
          crc = crc8_dvb_s2(crc, c);
      }
@@ -159,6 +162,9 @@
      uint8_t data[expectedDataLen];
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
      while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < expectedDataLen) {
+        timeMs_t timeout = millis() + 100;
+        while (millis() < timeout) {}
+
          uint8_t c = serialRead(device->serialPort);
          crc = crc8_dvb_s2(crc, c);
          data[dataPos++] = c;
@@ -187,13 +193,15 @@
      uint8_t data[maxDataLen];
      uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
      uint8_t settingDataLength = 0xFF;
- 
+     timeMs_t timeout = millis() + 100;
+     while (millis() < timeout) {}
      if (serialRxBytesWaiting(device->serialPort) > 0) {
          // skip the remaining chunk count to get the setting data length
          uint8_t c = serialRead(device->serialPort);
          crc = crc8_dvb_s2(crc, c);
          data[dataPos++] = c;
- 
+         timeMs_t timeout = millis() + 100;
+         while (millis() < timeout) {}
          settingDataLength = serialRead(device->serialPort);
          crc = crc8_dvb_s2(crc, settingDataLength);
          data[dataPos++] = settingDataLength;
@@ -203,9 +211,13 @@
          return false;
  
      while ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < (settingDataLength + 3)) {
+        timeMs_t timeout = millis() + 100;
+        while (millis() < timeout) {}
+
          uint8_t c = serialRead(device->serialPort);
          crc = crc8_dvb_s2(crc, c);
          data[dataPos++] = c;
+
      }
  
      if (crc != 0) 
@@ -236,6 +248,7 @@
          data[dataPos++] = c;
          printf("%02x ", c);
  
+         
          timeMs_t timeout = millis() + 100;
          while (millis() < timeout) {}
 
@@ -257,12 +270,14 @@
         crc = crc8_dvb_s2(crc, c);
         printf("%02x ", c);
         data[dataPos++] = c;
-
+        timeMs_t timeout = millis() + 100;
+        while (millis() < timeout) {}
         c = serialRead(device->serialPort); // read min value
         crc = crc8_dvb_s2(crc, c);
         printf("%02x ", c);
         data[dataPos++] = c;
-
+         timeout = millis() + 100;
+        while (millis() < timeout) {}
         c = serialRead(device->serialPort); // read max value
         crc = crc8_dvb_s2(crc, c);
         printf("%02x ", c);
@@ -271,6 +286,9 @@
  
      bool isFoundANullTeminatedChar = false;
      while (serialRxBytesWaiting(device->serialPort) > 0) {
+        timeMs_t timeout = millis() + 100;
+        while (millis() < timeout) {}
+
          uint8_t c = serialRead(device->serialPort);
          printf("[%02x] ", c);
          crc = crc8_dvb_s2(crc, c);
@@ -280,7 +298,7 @@
          switch (settingType) {
          case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT8:
          case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
-             packetReceiveDone = dataPos >= 6;
+             packetReceiveDone = dataPos >= 7;
              break;
          case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16:
          case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
@@ -312,7 +330,7 @@
          if (packetReceiveDone)
              break;
 
-        timeMs_t timeout = millis() + 100;
+         timeout = millis() + 100;
         while (millis() < timeout) {}
      }
      printf("\n");
