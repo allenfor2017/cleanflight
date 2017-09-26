@@ -627,7 +627,7 @@ cfTask_t cfTasks[TASK_COUNT] = {
     [TASK_CAMCTRL] = {
         .taskName = "CAMCTRL",
         .taskFunc = taskCameraControl,
-        .desiredPeriod = TASK_PERIOD_HZ(5),
+        .desiredPeriod = TASK_PERIOD_HZ(10),
         .staticPriority = TASK_PRIORITY_IDLE
     },
 #endif

@@ -19,6 +19,7 @@
 
 #include "drivers/rcdevice.h"
 #include "fc/rc_modes.h"
+#include "common/time.h"
 
 typedef struct {
     uint8_t boxId;
@@ -37,7 +38,7 @@ bool rcdeviceInMenu;
 typedef enum {
     RCSPLIT_CTRL_ARGU_INVALID = 0x0,
     RCSPLIT_CTRL_ARGU_WIFI_BTN = 0x1,
-    RCSPLIT_CTRL_ARGU_POWER_BTN = 0x2,  
+    RCSPLIT_CTRL_ARGU_POWER_BTN = 0x2,
     RCSPLIT_CTRL_ARGU_CHANGE_MODE = 0x3,
     RCSPLIT_CTRL_ARGU_WHO_ARE_YOU = 0xFF,
 } rcsplit_ctrl_argument_e;
@@ -56,6 +57,11 @@ typedef enum {
 
 bool rcdeviceCamInit(void);
 void rcdeviceCamProcess(timeUs_t currentTimeUs);
+
+bool isRcdeviceCamReady();
+bool isFeatureSupported(uint8_t feature);
+void rcdeviceCamProcessMode();
+void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs);
 
 // used for unit test
 rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];

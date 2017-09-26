@@ -21,11 +21,8 @@
  #include <stdlib.h>
  #include <string.h>
  
- #include "common/time.h"
  #include "common/crc.h"
- #include "drivers/system.h"
  #include "cms/cms.h"
- 
  
  #include "config/parameter_group_ids.h"
  #include "config/parameter_group.h"
@@ -36,29 +33,35 @@
  #include "fc/config.h"
  #include "config/feature.h"
 
- 
  #include "rx/rx.h"
  
  #define IS_HI(X)  (rcData[X] > 1750)
  #define IS_LO(X)  (rcData[X] < 1250)
  #define IS_MID(X) (rcData[X] > 1250 && rcData[X] < 1750)
- 
  static runcamDevice_t runcamDevice;
  runcamDevice_t *camDevice = &runcamDevice;
+ 
  rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
 
  timeUs_t lastTimeUs = 0;
  bool needRelease = false;
  
  
- static bool isFeatureSupported(uint8_t feature){
+ bool isFeatureSupported(uint8_t feature){
      if (camDevice->info.features & feature)
          return true;
  
      return false;
  }
+
+ bool isRcdeviceCamReady(){
+    if(camDevice->serialPort != NULL && isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
+        return true;
+     }
+     return false;
+ }
  
- static void rcdeviceCamProcessMode(){
+ void rcdeviceCamProcessMode(){
      if (camDevice->serialPort == NULL)
          return ;
  
@@ -99,7 +102,7 @@
      }
  }
  
- static bool rcdeviceCamSimulate5KeyCablePress(rcdeviceCamSimulationKeyEvent_e key){
+ bool rcdeviceCamSimulate5KeyCablePress(rcdeviceCamSimulationKeyEvent_e key){
      UNUSED(key);
 
      uint8_t operation;
@@ -118,7 +121,7 @@
      return runcamDeviceSimulate5KeyOSDCableButtonPress(camDevice,operation);
  }
 
- static bool rcdeviceSend5KeyOSDCableSimualtionEvent(rcdeviceCamSimulationKeyEvent_e key){
+ bool rcdeviceSend5KeyOSDCableSimualtionEvent(rcdeviceCamSimulationKeyEvent_e key){
 
     bool reqResult = false;
     switch(key){
@@ -143,7 +146,7 @@
     return reqResult;
  }
 
- static void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs){
+ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs){
 
 #ifdef CMS
     if(cmsInMenu){
@@ -183,30 +186,29 @@
             }
         }else{
              lastTimeUs = 0;
-    
-            if (IS_MID(THROTTLE) && IS_HI(YAW) && IS_HI(PITCH) && !ARMING_FLAG(ARMED)) {//HandShake HI YAW + HI PITCH
-                 if(!rcdeviceInMenu){
-                    key = RCDEVICE_CAM_KEY_RIGHT_AND_TOP;
-                 }
-            }else{
-                if(rcdeviceInMenu){
-                    if(IS_LO(ROLL)){//Left LO ROLL
-                        key = RCDEVICE_CAM_KEY_LEFT;
-                    }
-                    else if(IS_HI(PITCH)){//Up HI PITCH
-                        key = RCDEVICE_CAM_KEY_UP;
-                    }
-                    else if(IS_HI(ROLL)){//Right HI ROLL
-                        key = RCDEVICE_CAM_KEY_RIGHT;
-                    }
-                    else if(IS_LO(PITCH)){//Down LO PITCH
-                        key = RCDEVICE_CAM_KEY_DOWN;
-                    }
-                    else if(IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_HI(YAW)){//Enter HI YAW
-                        key = RCDEVICE_CAM_KEY_ENTER;
-                    }
+            
+             if(rcdeviceInMenu){
+                if(IS_LO(ROLL)){//Left LO ROLL
+                    key = RCDEVICE_CAM_KEY_LEFT;
                 }
-            }
+                else if(IS_HI(PITCH)){//Up HI PITCH
+                    key = RCDEVICE_CAM_KEY_UP;
+                }
+                else if(IS_HI(ROLL)){//Right HI ROLL
+                    key = RCDEVICE_CAM_KEY_RIGHT;
+                }
+                else if(IS_LO(PITCH)){//Down LO PITCH
+                    key = RCDEVICE_CAM_KEY_DOWN;
+                }
+                else if(IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_HI(YAW)){//Enter HI YAW
+                    key = RCDEVICE_CAM_KEY_ENTER;
+                }
+             }else{
+                 // if (IS_MID(THROTTLE) && IS_HI(YAW) && IS_HI(PITCH) && !ARMING_FLAG(ARMED)) {//HandShake HI YAW + HI PITCH
+                if(IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_HI(YAW) && !ARMING_FLAG(ARMED)){//Enter HI YAW
+                    key = RCDEVICE_CAM_KEY_RIGHT_AND_TOP;
+                }
+             }
         }
     }
     
@@ -224,8 +226,6 @@
 
  void rcdeviceCamProcess(timeUs_t currentTimeUs){
      UNUSED(currentTimeUs);
-
-     beeperConfirmationBeeps(1);
  
      if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON) ||
          isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_WIFI_BUTTON) ||
@@ -233,9 +233,9 @@
          rcdeviceCamProcessMode();
      }
     
-     if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
-        rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
-     }
+    //  if(isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE)){
+    //     rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
+    //  }
 
  }
  

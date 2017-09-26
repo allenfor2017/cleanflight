@@ -99,25 +99,6 @@
 
         if(crc == 0) break;
     }
-
-    //  CC 52 55 4E 43 41 4D 20 33 2E 30 01 08 00 83
-     if (data[0] == 0x52 &&
-        data[1] == 0x55 &&
-        data[2] == 0x4E &&
-        data[3] == 0x43 &&
-        data[4] == 0x41 &&
-        data[5] == 0x4D &&
-        data[6] == 0x20 &&
-        data[7] == 0x33 &&
-        data[8] == 0x2E &&
-        data[9] == 0x30 &&
-        data[10] == 0x01 &&
-        data[11] == 0x08 &&
-        data[12] == 0x00 &&
-        data[13] == 0x83
-    ) {
-        featureClear(FEATURE_LED_STRIP);
-      }
      
      // check crc
      if (crc != 0) return false;
