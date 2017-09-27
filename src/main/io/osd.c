@@ -1194,8 +1194,8 @@ void osdUpdate(timeUs_t currentTimeUs)
 #endif // MAX7456_DMA_CHANNEL_TX
 
     // redraw values in buffer
-#ifdef USE_MAX7456
-#define DRAW_FREQ_DENOM 5
+#if defined(USE_MAX7456) || defined(USE_RCDEVICE)
+#define DRAW_FREQ_DENOM 10
 #else
 #define DRAW_FREQ_DENOM 10 // MWOSD @ 115200 baud (
 #endif
