@@ -292,7 +292,7 @@
                 switch (settingType) {
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT8:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
-                    packetReceiveDone = dataPos >= 7;
+                    packetReceiveDone = dataPos >= 6;
                     break;
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
@@ -331,7 +331,6 @@
  
      if (crc != 0) { 
          printf("crc incorrect\n");
-         featureClear(FEATURE_SONAR);
          return false;
      }
  
@@ -525,8 +524,6 @@
  {
      serialPortFunction_e portID = FUNCTION_RCDEVICE;
      serialPortConfig_t *portConfig = findSerialPortConfig(portID);
-     bool isFirstTimeLoad = true;
- 
      while (portConfig != NULL) {
          device->serialPort = openSerialPort(portConfig->identifier, portID, NULL, 115200, MODE_RXTX, SERIAL_NOT_INVERTED);
          
@@ -1028,23 +1025,6 @@
      *response = (runcamDeviceWriteSettingResponse_t*)malloc(sizeof(runcamDeviceWriteSettingResponse_t));
      runcamDeviceWriteSettingResponse_t *p = *response;
      p->resultCode = sbufReadU8(&dataBuf);
- 
-     // read the info field
-     const char *infoString = (const char *)sbufConstPtr(&dataBuf);
-     uint8_t infoStrLen = strlen(infoString);
-     p->info = (char*)malloc(infoStrLen + 1);
-     memset(p->info, 0, infoStrLen + 1);
-     strcpy(p->info, infoString);
-     sbufAdvance(&dataBuf, infoStrLen + 1);
- 
-     // read the new value field
-     const char *newValueString = (const char *)sbufConstPtr(&dataBuf);
-     uint8_t newValueStrLen = strlen(newValueString) + 1;
-     p->newValue = (char*)malloc(newValueStrLen);
-     memset(p->newValue, 0, newValueStrLen);
-     strcpy(p->newValue, newValueString);
-     sbufAdvance(&dataBuf, newValueStrLen);
- 
      p->needUpdateMenuItems = sbufReadU8(&dataBuf);
  
      return true;

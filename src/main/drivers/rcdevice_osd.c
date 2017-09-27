@@ -57,16 +57,19 @@ static uint16_t maxScreenSize = VIDEO_BUFFER_CHARS_PAL;
 bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
 {
     if (!runcamDeviceInit(osdDevice)) {
+        featureClear(FEATURE_SOFTSERIAL);
         return false;
     }
 
     if ((osdDevice->info.features & RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT) == 0) {
+        featureClear(FEATURE_CHANNEL_FORWARDING);
         return false;
     }
 
     // get screen column count
     runcamDeviceSettingDetail_t *settingDetail;
     if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail)) {
+        featureClear(FEATURE_ESC_SENSOR);
         return false;
     }
     
@@ -77,8 +80,8 @@ bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
     if (video_system == VIDEO_SYSTEM_AUTO) {
         // fetch current video mode from device
         runcamDeviceSettingDetail_t *settingDetail;
-        if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &settingDetail)) {
-            // featureClear(FEATURE_SONAR);
+        if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE, &settingDetail)) {
+            featureClear(FEATURE_ANTI_GRAVITY);
             return false;
         }
 
@@ -86,13 +89,13 @@ bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
     } else {
         // set video system
         runcamDeviceWriteSettingResponse_t *response;
-        if (!runcamDeviceWriteSetting(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &video_system, sizeof(uint8_t), &response)) {
+        if (!runcamDeviceWriteSetting(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE, &video_system, sizeof(uint8_t), &response)) {
             featureClear(FEATURE_AIRMODE);
             return false;
         }
 
         if (response->resultCode) {
-            
+            featureClear(FEATURE_LED_STRIP);
             return false;
         }
     }

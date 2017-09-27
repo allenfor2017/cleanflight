@@ -318,7 +318,7 @@ static void osdDrawSingleElement(uint8_t item)
         displayClearScreen(osdDisplayPort);
         return;
     }
-    
+
     if (!VISIBLE(osdConfig()->item_pos[item]) || BLINK(item)) {
         return;
     }
@@ -754,65 +754,6 @@ static uint8_t osdIncElementIndex(uint8_t elementIndex) {
     return OSD_ITEM_COUNT;
 }
 
-static void osdDrawElements(void)
-{
-    displayClearScreen(osdDisplayPort);
-
-    /* Hide OSD when OSDSW mode is active */
-    if (IS_RC_MODE_ACTIVE(BOXOSD))
-      return;
-
-    if (sensors(SENSOR_ACC)) {
-        osdDrawSingleElement(OSD_ARTIFICIAL_HORIZON);
-    }
-
-    osdDrawSingleElement(OSD_MAIN_BATT_VOLTAGE);
-    osdDrawSingleElement(OSD_RSSI_VALUE);
-    osdDrawSingleElement(OSD_CROSSHAIRS);
-    osdDrawSingleElement(OSD_ITEM_TIMER_1);
-    osdDrawSingleElement(OSD_ITEM_TIMER_2);
-    osdDrawSingleElement(OSD_FLYMODE);
-    osdDrawSingleElement(OSD_THROTTLE_POS);
-    osdDrawSingleElement(OSD_VTX_CHANNEL);
-    osdDrawSingleElement(OSD_CURRENT_DRAW);
-    osdDrawSingleElement(OSD_MAH_DRAWN);
-    osdDrawSingleElement(OSD_CRAFT_NAME);
-    osdDrawSingleElement(OSD_ALTITUDE);
-    osdDrawSingleElement(OSD_ROLL_PIDS);
-    osdDrawSingleElement(OSD_PITCH_PIDS);
-    osdDrawSingleElement(OSD_YAW_PIDS);
-    osdDrawSingleElement(OSD_POWER);
-    osdDrawSingleElement(OSD_PIDRATE_PROFILE);
-    osdDrawSingleElement(OSD_WARNINGS);
-    osdDrawSingleElement(OSD_AVG_CELL_VOLTAGE);
-    osdDrawSingleElement(OSD_DEBUG);
-    osdDrawSingleElement(OSD_PITCH_ANGLE);
-    osdDrawSingleElement(OSD_ROLL_ANGLE);
-    osdDrawSingleElement(OSD_MAIN_BATT_USAGE);
-    osdDrawSingleElement(OSD_DISARMED);
-    osdDrawSingleElement(OSD_NUMERICAL_HEADING);
-    osdDrawSingleElement(OSD_NUMERICAL_VARIO);
-    osdDrawSingleElement(OSD_COMPASS_BAR);
-
-#ifdef GPS
-    if (sensors(SENSOR_GPS)) {
-        osdDrawSingleElement(OSD_GPS_SATS);
-        osdDrawSingleElement(OSD_GPS_SPEED);
-        osdDrawSingleElement(OSD_GPS_LAT);
-        osdDrawSingleElement(OSD_GPS_LON);
-        osdDrawSingleElement(OSD_HOME_DIST);
-        osdDrawSingleElement(OSD_HOME_DIR);
-    }
-#endif // GPS
-
-#ifdef USE_ESC_SENSOR
-  if (feature(FEATURE_ESC_SENSOR)) {
-      osdDrawSingleElement(OSD_ESC_TMP);
-      osdDrawSingleElement(OSD_ESC_RPM);
-  }
-#endif
-}
-
 void pgResetFn_osdConfig(osdConfig_t *osdConfig)
 {
     osdConfig->item_pos[OSD_RSSI_VALUE]         = OSD_POS(8, 1)   | VISIBLE_FLAG;
@@ -1241,7 +1182,6 @@ STATIC_UNIT_TESTED void osdRefresh(timeUs_t currentTimeUs)
 void osdUpdate(timeUs_t currentTimeUs)
 {
     static uint32_t counter = 0;
-
     if (isBeeperOn()) {
         showVisualBeeper = true;
     }
@@ -1269,14 +1209,13 @@ void osdUpdate(timeUs_t currentTimeUs)
     }
 #endif
 
-    osdRefresh(currentTimeUs);
-    // if (counter++ % DRAW_FREQ_DENOM == 0) {
-    //     osdRefresh(currentTimeUs);
+    if (counter++ % DRAW_FREQ_DENOM == 0) {
+        osdRefresh(currentTimeUs);
 
-    //     showVisualBeeper = false;
-    // } else { // rest of time redraw screen 10 chars per idle so it doesn't lock the main idle
-    //     displayDrawScreen(osdDisplayPort);
-    // }
+        showVisualBeeper = false;
+    } else { // rest of time redraw screen 10 chars per idle so it doesn't lock the main idle
+        displayDrawScreen(osdDisplayPort);
+    }
 
 #ifdef CMS
     // do not allow ARM if we are in menu

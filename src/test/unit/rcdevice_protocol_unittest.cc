@@ -141,7 +141,7 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     testData.responseDataLen = sizeof(data3);
     testData.maxTimesOfRespDataAvailable = testData.responseDataLen;
     memcpy(testData.responesBuf, data3, sizeof(data3));
-    r = runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail);
+    r = runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &settingDetail);
     EXPECT_EQ(r, true);
     if (r) {
         // printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize));

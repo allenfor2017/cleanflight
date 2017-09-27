@@ -565,7 +565,6 @@ void init(void)
 #if defined(USE_MAX7456)
         case OSD_DEVICE_MAX7456:
             osdDisplayPort = max7456DisplayPortInit(vcdProfile());
-            featureClear(FEATURE_SONAR);
             break;
 #endif
 
@@ -578,7 +577,6 @@ void init(void)
 #if defined(USE_RCDEVICE)
         case OSD_DEVICE_RCDEVICE:
             osdDisplayPort = rcdeviceDisplayPortInit(vcdProfile());
-            featureClear(FEATURE_TELEMETRY);
             break;
 #endif
     }

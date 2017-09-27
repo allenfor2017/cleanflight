@@ -58,14 +58,10 @@ static const displayPortVTable_t rcdeviceOSDVTable = {
 displayPort_t *rcdeviceDisplayPortInit(const vcdProfile_t *vcdProfile)
 {
     if (rcdeviceOSDInit(vcdProfile)) {
-        // init succeeded, prepare osd
         displayInit(&rcdeviceOSDDisplayPort, &rcdeviceOSDVTable);
         rcdeviceOSDResync(&rcdeviceOSDDisplayPort);
-        // return port on sucessfull init
         return &rcdeviceOSDDisplayPort;
     } else {
-        // init failed, do not use this
-        featureClear(FEATURE_OSD);
         return NULL;
     }
 }

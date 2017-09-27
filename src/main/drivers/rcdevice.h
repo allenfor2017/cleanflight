@@ -177,8 +177,6 @@ typedef enum {
  
  typedef struct {
      uint8_t resultCode;
-     char *info;
-     char *newValue;
      uint8_t needUpdateMenuItems;
  } runcamDeviceWriteSettingResponse_t;
  
