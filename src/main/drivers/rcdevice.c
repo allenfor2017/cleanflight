@@ -143,6 +143,38 @@
  
      return true;
  }
+
+ // decode the write setting response
+ static bool runcamDeviceReceiveWriteSettingResponse(runcamDevice_t *device, uint8_t *outputBuffer, uint8_t *outputBufferLen)
+ {
+     uint8_t crc = crc8_dvb_s2(0, RCDEVICE_PROTOCOL_HEADER);
+
+     const uint8_t expectedDataLen = 2;
+     uint8_t data[expectedDataLen];
+     timeMs_t timeout = millis() + 1000;
+     uint8_t dataLen = 0;
+     while (millis() < timeout) {
+         if(serialRxBytesWaiting(device->serialPort) > 0){
+            uint8_t c = serialRead(device->serialPort);
+            crc = crc8_dvb_s2(crc, c);
+            data[dataLen++] = c;
+         }
+
+         if (dataLen >= 3) break;
+     }
+ 
+     uint8_t errorCode = data[0];
+     if (errorCode != 0) return false;
+
+     if (crc != 0) return false;
+
+     if (outputBufferLen && (*outputBufferLen >= 1) && outputBuffer) {
+         memcpy(outputBuffer, data, dataLen);
+        *outputBufferLen = dataLen;
+    }
+ 
+     return true;
+ }
  
  // decode the connection event response
  static bool runcamDeviceReceiveConnectionEventResponse(runcamDevice_t *device, uint8_t *outputBuffer, uint8_t *outputBufferLen)
@@ -292,7 +324,7 @@
                 switch (settingType) {
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT8:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_INT8:
-                    packetReceiveDone = dataPos >= 6;
+                    packetReceiveDone = dataPos >= 7;
                     break;
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_UINT16:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_INT16:
@@ -328,7 +360,7 @@
         if (packetReceiveDone)
             break;
      }
- 
+
      if (crc != 0) { 
          printf("crc incorrect\n");
          return false;
@@ -421,6 +453,9 @@
                  case RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL:
                      decodeResult = runcamDeviceReceiveSettingDetail(device, outputBuffer, outputBufferLen);
                      break;
+                case RCDEVICE_PROTOCOL_COMMAND_WRITE_SETTING:
+                    decodeResult = runcamDeviceReceiveWriteSettingResponse(device, outputBuffer, outputBufferLen);
+                    break;
                  }
  
                  if (decodeResult)

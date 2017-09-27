@@ -53,6 +53,7 @@ static const displayPortVTable_t rcdeviceOSDVTable = {
     .heartbeat     = rcdeviceOSDHeartbeat,
     .resync        = rcdeviceOSDResync,
     .txBytesFree   = rcdeviceOSDTxBytesFree,
+    .screenSize    = rcdeviceScreenSize,
 };
 
 displayPort_t *rcdeviceDisplayPortInit(const vcdProfile_t *vcdProfile)

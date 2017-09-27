@@ -150,10 +150,36 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
         printf("\n");
     }
 
+    printf("prepare get setting columns detail:\n");
+    settingDetail = NULL;
+    // uint8_t data3[] = { 0xcc, 0x00, 0x01, 0x00, 0xF2, 0x02, 0x73 };
+    uint8_t data4[] = { 0xCC, 0x00, 0x00, 0x1E, 0x1E, 0x1E, 0x01, 0xDF };
+    testData.responesBuf = (uint8_t*)malloc(sizeof(data4));
+    testData.responseDataLen = sizeof(data4);
+    testData.maxTimesOfRespDataAvailable = testData.responseDataLen;
+    memcpy(testData.responesBuf, data4, sizeof(data4));
+    r = runcamDeviceGetSettingDetail(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail);
+    EXPECT_EQ(r, true);
+    if (r) {
+
+        printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize));
+        // printf("setting type:%02x, min value:%02x, max value:%02x, step size:%02x， decimal point:%04x\n", settingDetail->type, *(settingDetail->minValue), *(settingDetail->maxValue), *(settingDetail->stepSize), settingDetail->decimalPoint);
+        runcamDeviceReleaseSettingDetail(settingDetail);
+        printf("\n");
+    }
+    
+
     printf("prepare update charset setting:\n");
     runcamDeviceWriteSettingResponse_t *updateSettingResponse;
-    uint8_t newCharSetIndex = 1;
+    uint8_t newCharSetIndex = 0;
     r = runcamDeviceWriteSetting(&device, 0, &newCharSetIndex, 1, &updateSettingResponse);
+    EXPECT_EQ(r, true);
+    printf("\n");
+
+    printf("prepare update tv mode setting:\n");
+    // runcamDeviceWriteSettingResponse_t *updateSettingResponse;
+    uint8_t newTVMode = 0;
+    r = runcamDeviceWriteSetting(&device, 2, &newTVMode, 1, &updateSettingResponse);
     EXPECT_EQ(r, true);
     printf("\n");
 
@@ -206,6 +232,7 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     runcamDeviceWriteSettingResponse_t *response;
     runcamDeviceWriteSetting(&device, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &newval, sizeof(uint8_t), &response);
     printf("\n");
+
 
 
     printf("draw logo:\n");

@@ -69,19 +69,17 @@ bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
     // get screen column count
     runcamDeviceSettingDetail_t *settingDetail;
     if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS, &settingDetail)) {
-        featureClear(FEATURE_ESC_SENSOR);
         return false;
     }
     
-    // columnCount = *(settingDetail->value);
-    columnCount = 30;
+    columnCount = *(settingDetail->value);
 
     video_system = vcdProfile->video_system;
     if (video_system == VIDEO_SYSTEM_AUTO) {
         // fetch current video mode from device
         runcamDeviceSettingDetail_t *settingDetail;
         if (!runcamDeviceGetSettingDetail(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE, &settingDetail)) {
-            featureClear(FEATURE_ANTI_GRAVITY);
+            
             return false;
         }
 
@@ -89,7 +87,16 @@ bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
     } else {
         // set video system
         runcamDeviceWriteSettingResponse_t *response;
-        if (!runcamDeviceWriteSetting(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE, &video_system, sizeof(uint8_t), &response)) {
+        uint8_t tvMode = 0;
+        if (video_system == VIDEO_SYSTEM_NTSC) {
+            tvMode = 0;
+            featureClear(FEATURE_CHANNEL_FORWARDING);
+        } else if (video_system == VIDEO_SYSTEM_PAL) {
+            featureClear(FEATURE_ANTI_GRAVITY);
+            tvMode = 1;
+        }
+
+        if (!runcamDeviceWriteSetting(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE, &tvMode, sizeof(uint8_t), &response)) {
             featureClear(FEATURE_AIRMODE);
             return false;
         }
@@ -104,10 +111,10 @@ bool rcdeviceOSDInit(const vcdProfile_t *vcdProfile)
     uint8_t charsetID = 0;
     runcamDeviceWriteSettingResponse_t *updateCharsetResp; 
     runcamDeviceWriteSetting(osdDevice, RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET, &charsetID, sizeof(uint8_t), &updateCharsetResp);
-    // if (updateCharsetResp->resultCode != 0) {
-    //     featureClear(FEATURE_SOFTSERIAL);
-    //     return false;
-    // }
+    if (updateCharsetResp->resultCode != 0) {
+        featureClear(FEATURE_SOFTSERIAL);
+        return false;
+    }
 
     memset(shadowBuffer, 2, VIDEO_BUFFER_CHARS_PAL);
     // fill whole screen on device with ' '
@@ -234,10 +241,19 @@ void rcdeviceOSDResync(displayPort_t *displayPort)
 
     displayPort->cols = columnCount;
     maxScreenSize = displayPort->rows * displayPort->cols;
+
+    if (displayPort->rows == 13) {
+        featureClear(FEATURE_ESC_SENSOR);
+    }
 }
 
 uint32_t rcdeviceOSDTxBytesFree(const displayPort_t *displayPort)
 {
     UNUSED(displayPort);
     return UINT32_MAX;
+}
+
+int rcdeviceScreenSize(const displayPort_t *displayPort)
+{
+    return displayPort->rows * displayPort->cols;
 }
