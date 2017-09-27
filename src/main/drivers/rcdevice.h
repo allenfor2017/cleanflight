@@ -28,8 +28,8 @@
  
  // Commands
  #define RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO                   0x00
- // camera button simulation
- #define RCDEVICE_PROTOCOL_COMMAND_CAMERA_BTN_SIMULATION             0x01
+ // camera control
+ #define RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL                    0x01
  // 5 key osd cable simulation
  #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_PRESS             0x02
  #define RCDEVICE_PROTOCOL_COMMAND_5KEY_SIMULATION_RELEASE           0x03
@@ -54,12 +54,15 @@
  #define RCDEVICE_PROTOCOL_FEATURE_SIMULATE_5_KEY_OSD_CABLE          (1 << 3)
  #define RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS            (1 << 4)
  #define RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT                     (1 << 5)
- 
+ #define RCDEVICE_PROTOCOL_FEATURE_START_RECORDING                   (1 << 6)
+ #define RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING                    (1 << 7)
  
  // Operation of Camera Button Simulation
  #define RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN         0x00
  #define RCDEVICE_PROTOCOL_SIMULATE_POWER_BTN        0x01
  #define RCDEVICE_PROTOCOL_CHANGE_MODE               0x02
+ #define RCDEVICE_PROTOCOL_START_RECORDING           0x03
+ #define RCDEVICE_PROTOCOL_STOP_RECORDING            0x04
  #define RCDEVICE_PROTOCOL_UNKNOWN_CAMERA_OPERATION  0xFF
  
  

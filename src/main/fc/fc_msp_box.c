@@ -78,6 +78,8 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { BOXCAMERA3, "CAMERA CONTROL 3", 34 },
     { BOXFLIPOVERAFTERCRASH, "FLIP OVER AFTER CRASH", 35 },
     { BOXPREARM, "PREARM", 36 },
+    { BOXCAMERA4, "CAMERA CONTROL 4", 37 },
+    { BOXCAMERA5, "CAMERA CONTROL 5", 38 },
 };
 
 // mask of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
@@ -248,6 +250,8 @@ void initActiveBoxIds(void)
     BME(BOXCAMERA1);
     BME(BOXCAMERA2);
     BME(BOXCAMERA3);
+    BME(BOXCAMERA4);
+    BME(BOXCAMERA5);
 #endif
 
 #undef BME

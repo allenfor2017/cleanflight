@@ -549,7 +549,7 @@
  
  bool runcamDeviceSimulateCameraButton(runcamDevice_t *device, uint8_t operation)
  {
-     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_CAMERA_BTN_SIMULATION, &operation, sizeof(operation));
+     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL, &operation, sizeof(operation));
      return true;
  }
  

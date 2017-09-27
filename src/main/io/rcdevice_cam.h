@@ -38,4 +38,4 @@ void rcdeviceCamProcessMode();
 void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs);
 
 // used for unit test
-rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
+rcdevice_cam_switch_state_t switchStates[BOXCAMERA5 - BOXCAMERA1 + 1];

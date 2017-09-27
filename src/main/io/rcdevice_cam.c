@@ -41,7 +41,7 @@
  static runcamDevice_t runcamDevice;
  runcamDevice_t *camDevice = &runcamDevice;
 
- rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
+ rcdevice_cam_switch_state_t switchStates[BOXCAMERA5 - BOXCAMERA1 + 1];
 
  timeUs_t lastTimeUs = 0;
  bool needRelease = false;
@@ -65,7 +65,7 @@
      if (camDevice->serialPort == NULL)
          return ;
  
-     for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA3; i++) {
+     for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA5; i++) {
          uint8_t switchIndex = i - BOXCAMERA1;
          
          if (IS_RC_MODE_ACTIVE(i)) {
@@ -89,6 +89,14 @@
                  if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE))
                      behavior = RCDEVICE_PROTOCOL_CHANGE_MODE;
                  break;
+            case BOXCAMERA4:
+                if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_START_RECORDING))
+                    behavior = RCDEVICE_PROTOCOL_START_RECORDING;
+                break;
+            case BOXCAMERA5:
+                if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING))
+                    behavior = RCDEVICE_PROTOCOL_STOP_RECORDING;
+                break;
             default:
                 break;
              }
@@ -213,7 +221,7 @@
     }
     
     if(key != RCDEVICE_CAM_KEY_NONE){
-        if(key != RCDEVICE_CAM_KEY_RELEASE) beeperConfirmationBeeps(1);
+        // if(key != RCDEVICE_CAM_KEY_RELEASE) beeperConfirmationBeeps(1);
         if(!rcdeviceSend5KeyOSDCableSimualtionEvent(key)){
             beeperConfirmationBeeps(3);
             rcdeviceInMenu = false;
@@ -242,7 +250,7 @@
          return false;
      }
  
-     for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA3; i++) {
+     for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA5; i++) {
          uint8_t switchIndex = i - BOXCAMERA1;
          switchStates[switchIndex].boxId = 1 << i;
          switchStates[switchIndex].isActivated = true; 
