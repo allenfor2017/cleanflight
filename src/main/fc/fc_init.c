@@ -556,30 +556,32 @@ void init(void)
     //The OSD need to be initialised after GYRO to avoid GYRO initialisation failure on some targets
     if (feature(FEATURE_OSD)) {
     
-//         switch (osdConfig()->device) {
-//         default:
-//         case OSD_DEVICE_NONE:
-//             // no device is used
-//             osdDisplayPort = NULL;
+        switch (osdConfig()->device) {
+        default:
+        case OSD_DEVICE_NONE:
+            // no device is used
+            osdDisplayPort = NULL;
 
-// #if defined(USE_MAX7456)
-//         case OSD_DEVICE_MAX7456:
-//             osdDisplayPort = max7456DisplayPortInit(vcdProfile());
-//             break;
-// #endif
+#if defined(USE_MAX7456)
+        case OSD_DEVICE_MAX7456:
+            osdDisplayPort = max7456DisplayPortInit(vcdProfile());
+            featureClear(FEATURE_SONAR);
+            break;
+#endif
 
-// #if defined(USE_OSD_OVER_MSP_DISPLAYPORT) // OSD over MSP; not supported (yet)
-//         case OSD_DEVICE_MSP:
-//             osdDisplayPort = displayPortMspInit();
-//             break;
-// #endif
+#if defined(USE_OSD_OVER_MSP_DISPLAYPORT) // OSD over MSP; not supported (yet)
+        case OSD_DEVICE_MSP:
+            osdDisplayPort = displayPortMspInit();
+            break;
+#endif
 
 #if defined(USE_RCDEVICE)
-        // case OSD_DEVICE_RCDEVICE:
+        case OSD_DEVICE_RCDEVICE:
             osdDisplayPort = rcdeviceDisplayPortInit(vcdProfile());
-            // break;
+            featureClear(FEATURE_TELEMETRY);
+            break;
 #endif
-    // }
+    }
     
         // osdInit will register with CMS by itself.
         if (osdDisplayPort != NULL) {

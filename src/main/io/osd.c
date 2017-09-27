@@ -140,6 +140,8 @@ static uint8_t armState;
 
 static displayPort_t *osdDisplayPort;
 
+static uint8_t osdCurrentElementIndex;
+
 #define AH_SYMBOL_COUNT 9
 
 #define AH_SIDEBAR_WIDTH_POS 7
@@ -311,6 +313,12 @@ STATIC_UNIT_TESTED void osdFormatTimer(char *buff, bool showSymbol, int timerInd
 
 static void osdDrawSingleElement(uint8_t item)
 {
+    if (item == OSD_ITEM_COUNT) {
+        // no osd items are visible
+        displayClearScreen(osdDisplayPort);
+        return;
+    }
+    
     if (!VISIBLE(osdConfig()->item_pos[item]) || BLINK(item)) {
         return;
     }
@@ -720,6 +728,32 @@ static void osdDrawSingleElement(uint8_t item)
     displayWrite(osdDisplayPort, elemPosX + elemOffsetX, elemPosY, buff);
 }
 
+static uint8_t osdIncElementIndex(uint8_t elementIndex) {
+    // this makes sure that we do not enter an endless loop
+    // in case there are no visible items
+    uint8_t max_inc = OSD_ITEM_COUNT-1;
+
+    while (max_inc) {
+        // next item
+        elementIndex++;
+        max_inc--;
+
+        // make sure not to exceed maximum
+        if (elementIndex >= OSD_ITEM_COUNT) {
+            elementIndex = 0;
+        }
+
+        // check for visibility
+        if (VISIBLE(osdConfig()->item_pos[elementIndex])) {
+            // found next visible item
+            return elementIndex;
+        }
+    }
+
+    // no osd item is visible, return invalid item
+    return OSD_ITEM_COUNT;
+}
+
 static void osdDrawElements(void)
 {
     displayClearScreen(osdDisplayPort);
@@ -866,6 +900,8 @@ void osdInit(displayPort_t *osdDisplayPortToUse)
 
     BUILD_BUG_ON(OSD_POS_MAX != OSD_POS(31,31));
 
+    osdCurrentElementIndex = 0;
+    
     osdDisplayPort = osdDisplayPortToUse;
 #ifdef CMS
     cmsDisplayPortRegister(osdDisplayPort);
@@ -1186,7 +1222,10 @@ STATIC_UNIT_TESTED void osdRefresh(timeUs_t currentTimeUs)
 #ifdef CMS
     if (!displayIsGrabbed(osdDisplayPort)) {
         osdUpdateAlarms();
-        osdDrawElements();
+        // osdDrawElements();
+        osdDrawSingleElement(osdCurrentElementIndex);
+        osdCurrentElementIndex = osdIncElementIndex(osdCurrentElementIndex);
+
         displayHeartbeat(osdDisplayPort);
 #ifdef OSD_CALLS_CMS
     } else {
@@ -1230,13 +1269,14 @@ void osdUpdate(timeUs_t currentTimeUs)
     }
 #endif
 
-    if (counter++ % DRAW_FREQ_DENOM == 0) {
-        osdRefresh(currentTimeUs);
+    osdRefresh(currentTimeUs);
+    // if (counter++ % DRAW_FREQ_DENOM == 0) {
+    //     osdRefresh(currentTimeUs);
 
-        showVisualBeeper = false;
-    } else { // rest of time redraw screen 10 chars per idle so it doesn't lock the main idle
-        displayDrawScreen(osdDisplayPort);
-    }
+    //     showVisualBeeper = false;
+    // } else { // rest of time redraw screen 10 chars per idle so it doesn't lock the main idle
+    //     displayDrawScreen(osdDisplayPort);
+    // }
 
 #ifdef CMS
     // do not allow ARM if we are in menu
