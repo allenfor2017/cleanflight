@@ -751,11 +751,15 @@ void runcamDeviceDispWriteVertString(runcamDevice_t *device, uint8_t x,
 void runcamDeviceDispWriteChars(runcamDevice_t *device, uint8_t *data,
                                 uint8_t datalen)
 {
-    uint8_t paramsBufLen = datalen + 1;
+    uint8_t adjustedDataLen = datalen;
+    if (adjustedDataLen > 60) // if data len more then 60 chars, cut it to 60
+        adjustedDataLen = 60;
+
+    uint8_t paramsBufLen = adjustedDataLen + 1;
     uint8_t *paramsBuf = (uint8_t *)malloc(paramsBufLen);
 
-    paramsBuf[0] = datalen;
-    memcpy(paramsBuf + 1, data, datalen);
+    paramsBuf[0] = adjustedDataLen;
+    memcpy(paramsBuf + 1, data, adjustedDataLen);
 
     runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHARS,
                            paramsBuf, paramsBufLen);
