@@ -46,47 +46,47 @@ typedef enum {
     RCDP_SETTING_PARSE_WAITING_VALUE,
 } runcamDeviceSettingParseStep_e;
 
-//  // the crc calc function for rcsplit 1.0 and 1.1, this function will
-//  deprecate in feature static uint8_t crc_high_first(uint8_t *ptr, uint8_t
-//  len)
-//  {
-//      uint8_t i;
-//      uint8_t crc=0x00;
-//      while (len--) {
-//          crc ^= *ptr++;
-//          for (i=8; i>0; --i) {
-//              if (crc & 0x80)
-//                  crc = (crc << 1) ^ 0x31;
-//              else
-//                  crc = (crc << 1);
-//          }
-//      }
-//      return (crc);
-//  }
+ // the crc calc function for rcsplit 1.0 and 1.1, this function will
+ deprecate in feature static uint8_t crc_high_first(uint8_t *ptr, uint8_t
+ len)
+ {
+     uint8_t i;
+     uint8_t crc=0x00;
+     while (len--) {
+         crc ^= *ptr++;
+         for (i=8; i>0; --i) {
+             if (crc & 0x80)
+                 crc = (crc << 1) ^ 0x31;
+             else
+                 crc = (crc << 1);
+         }
+     }
+     return (crc);
+ }
 
-//  // a send packet method for rcsplit 1.0 and 1.1, this function will
-//  deprecate in feature static void rcsplitSendCtrlCommand(runcamDevice_t
-//  *device, rcsplit_ctrl_argument_e argument)
-//  {
-//      if (!device->serialPort)
-//          return ;
+ // a send packet method for rcsplit 1.0 and 1.1, this function will
+ deprecate in feature static void rcsplitSendCtrlCommand(runcamDevice_t
+ *device, rcsplit_ctrl_argument_e argument)
+ {
+     if (!device->serialPort)
+         return ;
 
-//      uint8_t uart_buffer[5] = {0};
-//      uint8_t crc = 0;
+     uint8_t uart_buffer[5] = {0};
+     uint8_t crc = 0;
 
-//      uart_buffer[0] = RCSPLIT_PACKET_HEADER;
-//      uart_buffer[1] = RCSPLIT_PACKET_CMD_CTRL;
-//      uart_buffer[2] = argument;
-//      uart_buffer[3] = RCSPLIT_PACKET_TAIL;
-//      crc = crc_high_first(uart_buffer, 4);
+     uart_buffer[0] = RCSPLIT_PACKET_HEADER;
+     uart_buffer[1] = RCSPLIT_PACKET_CMD_CTRL;
+     uart_buffer[2] = argument;
+     uart_buffer[3] = RCSPLIT_PACKET_TAIL;
+     crc = crc_high_first(uart_buffer, 4);
 
-//      // build up a full request [header]+[command]+[argument]+[crc]+[tail]
-//      uart_buffer[3] = crc;
-//      uart_buffer[4] = RCSPLIT_PACKET_TAIL;
+     // build up a full request [header]+[command]+[argument]+[crc]+[tail]
+     uart_buffer[3] = crc;
+     uart_buffer[4] = RCSPLIT_PACKET_TAIL;
 
-//      // write to device
-//      serialWriteBuf(device->serialPort, uart_buffer, 5);
-//  }
+     // write to device
+     serialWriteBuf(device->serialPort, uart_buffer, 5);
+ }
 
 // decode the device info
 static bool runcamDeviceReceiveDeviceInfo(runcamDevice_t *device)
@@ -616,9 +616,19 @@ bool runcamDeviceInit(runcamDevice_t *device)
 
 bool runcamDeviceSimulateCameraButton(runcamDevice_t *device, uint8_t operation)
 {
-    runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL,
-                           &operation, sizeof(operation));
-    return true;
+    if (device->info.protocolVersion == RCDEVICE_PROTOCOL_RCSPLIT_VERSION) {
+        rcsplit_ctrl_argument_e argu = RCSPLIT_CTRL_ARGU_INVALID;
+        if (operation >= RCDEVICE_PROTOCOL_FEATURE_SIMULATE_POWER_BUTTON && 
+            operation <= RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE) {
+            rcsplitSendCtrlCommand(device, operation + 1);
+            return true;
+        }
+    } else {
+        return runcamDeviceSendPacket(device, RCDEVICE_PROTOCOL_COMMAND_CAMERA_CONTROL,
+                            &operation, sizeof(operation));
+    }
+
+    return false;
 }
 
 // every time start to control the OSD menu of camera, must call this method to
