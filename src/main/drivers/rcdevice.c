@@ -299,9 +299,8 @@ static bool runcamDeviceReceiveSettingDetail(runcamDevice_t *device,
                 crc = crc8_dvb_s2(crc, settingType);
                 data[dataPos++] = settingType;
 
-                if (settingType >= RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN) {
+                if (settingType >= RCDEVICE_PROTOCOL_SETTINGTYPE_UNKNOWN)
                     return false;
-                }
 
                 step = 1;
             }
@@ -347,9 +346,9 @@ static bool runcamDeviceReceiveSettingDetail(runcamDevice_t *device,
                     break;
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_TEXT_SELECTION:
                 case RCDEVICE_PROTOCOL_SETTINGTYPE_STRING:
-                    if (isFoundANullTeminatedChar) {
+                    if (isFoundANullTeminatedChar)
                         packetReceiveDone = true;
-                    } else if (dataPos >= 63)
+                    else if (dataPos >= 63)
                         packetReceiveDone = true;
 
                     if (c == 0)
@@ -399,9 +398,8 @@ static void runcamDeviceSendPacket(runcamDevice_t *device, uint8_t command,
                                    uint8_t *paramData, uint8_t paramDataLen)
 {
     // is this device open?
-    if (!device->serialPort) {
+    if (!device->serialPort)
         return;
-    }
 
     // point to the buffer
     device->sbuf = &device->streamBuffer;
@@ -603,9 +601,8 @@ bool runcamDeviceInit(runcamDevice_t *device)
         if (device->serialPort != NULL) {
             // check the device is using rcsplit firmware 1.1(or 1.0) or 'RunCam
             // Device Protocol', so we can access it in correct way.
-            if (runcamDeviceVerify(device)) {
+            if (runcamDeviceVerify(device))
                 return true;
-            }
 
             closeSerialPort(device->serialPort);
         }
@@ -1029,9 +1026,8 @@ bool runcamDeviceGetSettingDetail(
         device, RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL, paramsBuf,
         sizeof(paramsBuf), outputBuf, &outputBufLen);
 
-    if (!result) {
+    if (!result)
         return false;
-    }
 
     // save setting data to sbuf_t object
     uint8_t remainingChunk = outputBuf[0];
