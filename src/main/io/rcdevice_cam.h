@@ -32,8 +32,8 @@ typedef struct {
 extern runcamDevice_t *camDevice;
 bool rcdeviceInMenu;
 
-bool rcdeviceCamInit(void);
-void rcdeviceCamProcess(timeUs_t currentTimeUs);
+bool rcdeviceInit(void);
+void rcdeviceProcess(timeUs_t currentTimeUs);
 
 bool isRcdeviceCamReady();
 bool isFeatureSupported(uint8_t feature);
@@ -41,4 +41,4 @@ void rcdeviceCamProcessMode();
 void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs);
 
 // used for unit test
-rcdevice_cam_switch_state_t switchStates[BOXCAMERA5 - BOXCAMERA1 + 1];
+rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];

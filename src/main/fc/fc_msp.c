@@ -413,7 +413,11 @@ static bool mspCommonProcessOutCommand(uint8_t cmdMSP, sbuf_t *dst, mspPostProce
 #ifdef USE_OSD_SLAVE
         sbufWriteU8(dst, 1);  // 1 == OSD
 #else
+#if defined(OSD) && defined(USE_MAX7456)
         sbufWriteU8(dst, 2);  // 2 == FC with OSD
+#else
+        sbufWriteU8(dst, 0);  // 0 == FC
+#endif
 #endif
         break;
 
@@ -611,10 +615,9 @@ static bool mspCommonProcessOutCommand(uint8_t cmdMSP, sbuf_t *dst, mspPostProce
 #define OSD_FLAGS_RESERVED_1            (1 << 2)
 #define OSD_FLAGS_RESERVED_2            (1 << 3)
 #define OSD_FLAGS_OSD_HARDWARE_MAX_7456 (1 << 4)
-#define OSD_FLAGS_OSD_HARDWARE_RCDEVICE (1 << 5)
 
         uint8_t osdFlags = 0;
-#if (defined(USE_MAX7456) || defined(USE_RCDEVICE))
+#if defined(OSD)
         osdFlags |= OSD_FLAGS_OSD_FEATURE;
 #endif
 #if defined(USE_OSD_SLAVE)
@@ -623,23 +626,18 @@ static bool mspCommonProcessOutCommand(uint8_t cmdMSP, sbuf_t *dst, mspPostProce
 #ifdef USE_MAX7456
         osdFlags |= OSD_FLAGS_OSD_HARDWARE_MAX_7456;
 #endif
-#ifdef USE_RCDEVICE
-        osdFlags |= OSD_FLAGS_OSD_HARDWARE_RCDEVICE;
-#endif
+
         sbufWriteU8(dst, osdFlags);
 
-#if (defined(USE_MAX7456) || defined(USE_RCDEVICE))
+#ifdef USE_MAX7456
         // send video system (AUTO/PAL/NTSC)
         sbufWriteU8(dst, vcdProfile()->video_system);
 #else
         sbufWriteU8(dst, 0);
 #endif
 
-#if defined(USE_MAX7456) || defined(USE_RCDEVICE)
+#ifdef OSD
         // OSD specific, not applicable to OSD slaves.
-        sbufWriteU8(dst, osdConfig()->device);
-        sbufWriteU8(dst, osdRowCount());
-        sbufWriteU8(dst, osdColCount());
 
         // Configuration
         sbufWriteU8(dst, osdConfig()->units);
@@ -2033,26 +2031,26 @@ static mspResult_e mspCommonProcessInCommand(uint8_t cmdMSP, sbuf_t *src)
         batteryConfigMutable()->currentMeterSource = sbufReadU8(src);
         break;
 
-#if defined(USE_MAX7456) || defined(USE_RCDEVICE) || defined (USE_OSD_SLAVE)
+#if defined(OSD) || defined (USE_OSD_SLAVE)
     case MSP_SET_OSD_CONFIG:
         {
             const uint8_t addr = sbufReadU8(src);
 
             if ((int8_t)addr == -1) {
                 /* Set general OSD settings */
-#if defined(USE_MAX7456) || defined(USE_RCDEVICE)
+#ifdef USE_MAX7456
                 vcdProfileMutable()->video_system = sbufReadU8(src);
-                osdConfigMutable()->device = sbufReadU8(src);
-
+#else
+                sbufReadU8(src); // Skip video system
+#endif
+#if defined(OSD)
                 osdConfigMutable()->units = sbufReadU8(src);
-                
+
                 // Alarms
                 osdConfigMutable()->rssi_alarm = sbufReadU8(src);
                 osdConfigMutable()->cap_alarm = sbufReadU16(src);
                 sbufReadU16(src); // Skip unused (previously fly timer)
                 osdConfigMutable()->alt_alarm = sbufReadU16(src);
-#else
-                sbufReadU8(src); // Skip video system
 #endif
             } else if ((int8_t)addr == -2) {
 #if defined(OSD)

@@ -148,7 +148,7 @@ FC_SRC = \
             io/displayport_max7456.c \
             io/displayport_msp.c \
             io/displayport_oled.c \
-            io/displayport_rcdevice.h \
+            io/displayport_rcdevice.c \
             io/gps.c \
             io/ledstrip.c \
             io/osd.c \

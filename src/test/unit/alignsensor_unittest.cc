@@ -1,19 +1,19 @@
-// /*
-//  * This file is part of Cleanflight.
-//  *
-//  * Cleanflight is free software: you can redistribute it and/or modify
-//  * it under the terms of the GNU General Public License as published by
-//  * the Free Software Foundation, either version 3 of the License, or
-//  * (at your option) any later version.
-//  *
-//  * Cleanflight is distributed in the hope that it will be useful,
-//  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  * GNU General Public License for more details.
-//  *
-//  * You should have received a copy of the GNU General Public License
-//  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
-//  */
+/*
+ * This file is part of Cleanflight.
+ *
+ * Cleanflight is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Cleanflight is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "math.h"
 #include "stdint.h"
@@ -28,15 +28,15 @@ extern "C" {
 
 #include "gtest/gtest.h"
 
-// /*
-//  * This test file contains an independent method of rotating a vector.
-//  * The output of alignSensor() is compared to the output of the test
-//  * rotation method.
-//  *
-//  * For each alignment condition (CW0, CW90, etc) the source vector under
-//  * test is set to a unit vector along each axis (x-axis, y-axis, z-axis)
-//  * plus one additional random vector is tested.
-//  */
+/*
+ * This test file contains an independent method of rotating a vector.
+ * The output of alignSensor() is compared to the output of the test
+ * rotation method.
+ *
+ * For each alignment condition (CW0, CW90, etc) the source vector under
+ * test is set to a unit vector along each axis (x-axis, y-axis, z-axis)
+ * plus one additional random vector is tested.
+ */
 
 #define DEG2RAD 0.01745329251
 
@@ -57,18 +57,18 @@ static void rotateVector(int32_t mat[3][3], int32_t vec[3], int32_t *out)
 
 }
 
-static void initXAxisRotation(int32_t mat[][3], int32_t angle)
-{
-   mat[0][0] =  1;
-   mat[0][1] =  0;
-   mat[0][2] =  0;
-   mat[1][0] =  0;
-   mat[1][1] =  cos(angle*DEG2RAD);
-   mat[1][2] = -sin(angle*DEG2RAD);
-   mat[2][0] =  0;
-   mat[2][1] =  sin(angle*DEG2RAD);
-   mat[2][2] =  cos(angle*DEG2RAD);
-}
+//static void initXAxisRotation(int32_t mat[][3], int32_t angle)
+//{
+//    mat[0][0] =  1;
+//    mat[0][1] =  0;
+//    mat[0][2] =  0;
+//    mat[1][0] =  0;
+//    mat[1][1] =  cos(angle*DEG2RAD);
+//    mat[1][2] = -sin(angle*DEG2RAD);
+//    mat[2][0] =  0;
+//    mat[2][1] =  sin(angle*DEG2RAD);
+//    mat[2][2] =  cos(angle*DEG2RAD);
+//}
 
 static void initYAxisRotation(int32_t mat[][3], int32_t angle)
 {

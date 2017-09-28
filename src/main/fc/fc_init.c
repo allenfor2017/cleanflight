@@ -551,43 +551,22 @@ void init(void)
     cmsInit();
 #endif
 
-#if !defined(USE_OSD_SLAVE)
+#if (defined(OSD) || (defined(USE_MSP_DISPLAYPORT) && defined(CMS)) || defined(USE_OSD_SLAVE))
     displayPort_t *osdDisplayPort = NULL;
-    //The OSD need to be initialised after GYRO to avoid GYRO initialisation failure on some targets
-    if (feature(FEATURE_OSD)) {
-    
-        switch (osdConfig()->device) {
-        default:
-        case OSD_DEVICE_NONE:
-            // no device is used
-            osdDisplayPort = NULL;
+#endif
 
+#if defined(OSD) && !defined(USE_OSD_SLAVE)
+//The OSD need to be initialised after GYRO to avoid GYRO initialisation failure on some targets
+
+if (feature(FEATURE_OSD)) {
 #if defined(USE_MAX7456)
-        case OSD_DEVICE_MAX7456:
-            osdDisplayPort = max7456DisplayPortInit(vcdProfile());
-            break;
+    // If there is a max7456 chip for the OSD then use it
+    osdDisplayPort = max7456DisplayPortInit(vcdProfile());
+#elif defined(USE_OSD_OVER_MSP_DISPLAYPORT) // OSD over MSP; not supported (yet)
+    osdDisplayPort = displayPortMspInit();
 #endif
-
-#if defined(USE_OSD_OVER_MSP_DISPLAYPORT) // OSD over MSP; not supported (yet)
-        case OSD_DEVICE_MSP:
-            osdDisplayPort = displayPortMspInit();
-            break;
-#endif
-
-#if defined(USE_RCDEVICE)
-        case OSD_DEVICE_RCDEVICE:
-            osdDisplayPort = rcdeviceDisplayPortInit(vcdProfile());
-            break;
-#endif
-    }
-    
-        // osdInit will register with CMS by itself.
-        if (osdDisplayPort != NULL) {
-            osdInit(osdDisplayPort);
-        } else {
-            // no valid osd found, disable feature
-            featureClear(FEATURE_OSD);
-        }
+    // osdInit  will register with CMS by itself.
+    osdInit(osdDisplayPort);
     }
 #endif
 
@@ -749,7 +728,7 @@ void init(void)
 #endif
 
 #ifdef USE_RCDEVICE
-    rcdeviceCamInit();
+    rcdeviceInit();
 #endif // USE_RCDEVICE
 
     systemState |= SYSTEM_STATE_READY;

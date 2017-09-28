@@ -42,7 +42,7 @@
 static runcamDevice_t runcamDevice;
 runcamDevice_t *camDevice = &runcamDevice;
 
-rcdevice_cam_switch_state_t switchStates[BOXCAMERA5 - BOXCAMERA1 + 1];
+rcdevice_cam_switch_state_t switchStates[BOXCAMERA3 - BOXCAMERA1 + 1];
 
 bool needRelease = false;
 
@@ -69,7 +69,7 @@ void rcdeviceCamProcessMode()
     if (camDevice->serialPort == NULL)
         return;
 
-    for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA5; i++) {
+    for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA3; i++) {
         uint8_t switchIndex = i - BOXCAMERA1;
 
         if (IS_RC_MODE_ACTIVE(i)) {
@@ -95,16 +95,6 @@ void rcdeviceCamProcessMode()
             case BOXCAMERA3:
                 if (isFeatureSupported(RCDEVICE_PROTOCOL_FEATURE_CHANGE_MODE))
                     behavior = RCDEVICE_PROTOCOL_CAM_CTRL_CHANGE_MODE;
-                break;
-            case BOXCAMERA4:
-                if (isFeatureSupported(
-                        RCDEVICE_PROTOCOL_FEATURE_START_RECORDING))
-                    behavior = RCDEVICE_PROTOCOL_CAM_CTRL_START_RECORDING;
-                break;
-            case BOXCAMERA5:
-                if (isFeatureSupported(
-                        RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING))
-                    behavior = RCDEVICE_PROTOCOL_CAM_CTRL_STOP_RECORDING;
                 break;
             default:
                 break;
@@ -235,7 +225,7 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
     }
 }
 
-void rcdeviceCamProcess(timeUs_t currentTimeUs)
+void rcdeviceProcess(timeUs_t currentTimeUs)
 {
     UNUSED(currentTimeUs);
 
@@ -246,14 +236,14 @@ void rcdeviceCamProcess(timeUs_t currentTimeUs)
     }
 }
 
-bool rcdeviceCamInit(void)
+bool rcdeviceInit(void)
 {
     // open serial port
     if (!runcamDeviceInit(camDevice)) {
         return false;
     }
 
-    for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA5; i++) {
+    for (boxId_e i = BOXCAMERA1; i <= BOXCAMERA3; i++) {
         uint8_t switchIndex = i - BOXCAMERA1;
         switchStates[switchIndex].boxId = 1 << i;
         switchStates[switchIndex].isActivated = true;

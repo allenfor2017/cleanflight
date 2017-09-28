@@ -126,13 +126,6 @@ typedef enum {
     OSD_TIMER_PREC_COUNT
 } osd_timer_precision_e;
 
-typedef enum {
-    OSD_DEVICE_NONE         = 0,
-    OSD_DEVICE_MAX7456,
-    OSD_DEVICE_MSP,
-    OSD_DEVICE_RCDEVICE,
-} osd_device_e;
-
 typedef struct osdConfig_s {
     uint16_t item_pos[OSD_ITEM_COUNT];
     bool enabled_stats[OSD_STAT_COUNT];
@@ -148,8 +141,6 @@ typedef struct osdConfig_s {
 
     uint8_t ahMaxPitch;
     uint8_t ahMaxRoll;
-
-    osd_device_e device;
 } osdConfig_t;
 
 extern uint32_t resumeRefreshAt;
@@ -161,7 +152,5 @@ void osdInit(struct displayPort_s *osdDisplayPort);
 void osdResetConfig(osdConfig_t *osdProfile);
 void osdResetAlarms(void);
 void osdUpdate(timeUs_t currentTimeUs);
-int osdColCount();
-int osdRowCount();
 
 #endif
