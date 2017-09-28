@@ -1195,7 +1195,7 @@ void osdUpdate(timeUs_t currentTimeUs)
 
     // redraw values in buffer
 #if defined(USE_MAX7456) || defined(USE_RCDEVICE)
-#define DRAW_FREQ_DENOM 10
+#define DRAW_FREQ_DENOM 0
 #else
 #define DRAW_FREQ_DENOM 10 // MWOSD @ 115200 baud (
 #endif
@@ -1209,13 +1209,13 @@ void osdUpdate(timeUs_t currentTimeUs)
     }
 #endif
 
-    if (counter++ % DRAW_FREQ_DENOM == 0) {
+    // if (counter++ % DRAW_FREQ_DENOM == 0) {
         osdRefresh(currentTimeUs);
 
         showVisualBeeper = false;
-    } else { // rest of time redraw screen 10 chars per idle so it doesn't lock the main idle
-        displayDrawScreen(osdDisplayPort);
-    }
+    // } else { // rest of time redraw screen 10 chars per idle so it doesn't lock the main idle
+    //     displayDrawScreen(osdDisplayPort);
+    // }
 
 #ifdef CMS
     // do not allow ARM if we are in menu

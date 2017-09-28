@@ -17,9 +17,9 @@
 
 #pragma once
 
+#include "common/time.h"
 #include "drivers/rcdevice.h"
 #include "fc/rc_modes.h"
-#include "common/time.h"
 
 typedef struct {
     uint8_t boxId;

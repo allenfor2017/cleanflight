@@ -15,7 +15,6 @@
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -29,8 +28,8 @@
 
 #include "drivers/display.h"
 #include "drivers/rcdevice.h"
-#include "drivers/vcd.h"
 #include "drivers/rcdevice_osd.h"
+#include "drivers/vcd.h"
 
 #include "io/displayport_rcdevice.h"
 #include "io/osd.h"
@@ -43,17 +42,17 @@
 displayPort_t rcdeviceOSDDisplayPort;
 
 static const displayPortVTable_t rcdeviceOSDVTable = {
-    .grab          = rcdeviceOSDGrab,
-    .release       = rcdeviceOSDRelease,
-    .clearScreen   = rcdeviceOSDClearScreen,
-    .drawScreen    = rcdeviceOSDDrawScreen,
-    .writeString   = rcdeviceOSDWriteString,
-    .writeChar     = rcdeviceOSDWriteChar,
+    .grab = rcdeviceOSDGrab,
+    .release = rcdeviceOSDRelease,
+    .clearScreen = rcdeviceOSDClearScreen,
+    .drawScreen = rcdeviceOSDDrawScreen,
+    .writeString = rcdeviceOSDWriteString,
+    .writeChar = rcdeviceOSDWriteChar,
     .isTransferInProgress = rcdeviceOSDIsTransferInProgress,
-    .heartbeat     = rcdeviceOSDHeartbeat,
-    .resync        = rcdeviceOSDResync,
-    .txBytesFree   = rcdeviceOSDTxBytesFree,
-    .screenSize    = rcdeviceScreenSize,
+    .heartbeat = rcdeviceOSDHeartbeat,
+    .resync = rcdeviceOSDResync,
+    .txBytesFree = rcdeviceOSDTxBytesFree,
+    .screenSize = rcdeviceScreenSize,
 };
 
 displayPort_t *rcdeviceDisplayPortInit(const vcdProfile_t *vcdProfile)
@@ -67,4 +66,4 @@ displayPort_t *rcdeviceDisplayPortInit(const vcdProfile_t *vcdProfile)
     }
 }
 
-#endif  // defined(USE_RCDEVICE)
+#endif // defined(USE_RCDEVICE)

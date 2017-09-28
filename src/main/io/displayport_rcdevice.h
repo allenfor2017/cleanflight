@@ -16,6 +16,6 @@
  */
 
 #pragma once
- 
+
 struct vcdProfile_s;
 displayPort_t *rcdeviceDisplayPortInit(const struct vcdProfile_s *vcdProfile);

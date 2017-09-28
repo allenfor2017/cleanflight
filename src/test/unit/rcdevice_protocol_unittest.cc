@@ -87,7 +87,7 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
     EXPECT_EQ(result, true);
 
     printf("prepare send wifi btn simualtion:\n");
-    r = runcamDeviceSimulateCameraButton(&device, RCDEVICE_PROTOCOL_SIMULATE_WIFI_BTN);
+    r = runcamDeviceSimulateCameraButton(&device, RCDEVICE_PROTOCOL_CAM_CTRL_SIMULATE_WIFI_BTN);
     EXPECT_EQ(r, true);
     printf("\n");
 
@@ -111,7 +111,7 @@ TEST(RCSplitTest, TestRCDeviceProtocolGeneration)
 
 
     printf("prepare write string:\n");
-    runcamDeviceDispWriteString(&device, 12, 6, "CCd V");
+    runcamDeviceDispWriteHortString(&device, 12, 6, "CCd V");
     printf("\n");
 
     printf("prepare get settings of root level:\n");

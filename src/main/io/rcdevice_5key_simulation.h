@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
- #include "common/time.h"
+#include "common/time.h"
 
- bool rcdeviceIs5KeySimulationReady(void);
- void rcdevice5KeySimulationProcessMode(timeUs_t currentTimeUs);
+bool rcdeviceIs5KeySimulationReady(void);
+void rcdevice5KeySimulationProcessMode(timeUs_t currentTimeUs);

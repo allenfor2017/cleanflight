@@ -14,18 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
- #include "io/rcdevice_cam.h"
- #include "drivers/rcdevice.h"
- #include "io/rcdevice_5key_simulation.h"
 
+#include "io/rcdevice_5key_simulation.h"
+#include "drivers/rcdevice.h"
+#include "io/rcdevice_cam.h"
 
- bool rcdeviceIs5KeySimulationReady(void)
- {
-     bool isReady = isRcdeviceCamReady();
-     return isReady;
- }
+bool rcdeviceIs5KeySimulationReady(void)
+{
+    bool isReady = isRcdeviceCamReady();
+    return isReady;
+}
 
- void rcdevice5KeySimulationProcessMode(timeUs_t currentTimeUs)
- {
+void rcdevice5KeySimulationProcessMode(timeUs_t currentTimeUs)
+{
     rcdeviceCamSimulate5KeyCablePressProcessMode(currentTimeUs);
- }
+}
