@@ -112,18 +112,12 @@ static bool runcamDeviceReceiveDeviceInfo(runcamDevice_t *device)
     // check crc
     if (crc != 0)
         return false;
-    ;
 
-    uint8_t protocolVersion = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH];
+    uint8_t protocolVersion = data[0];
 
     if (protocolVersion >= RCDEVICE_PROTOCOL_UNKNOWN)
         return false;
 
-    memset(device->info.firmwareVersion, 0,
-           RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH);
-
-    memcpy(device->info.firmwareVersion, data,
-           RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH);
     device->info.protocolVersion = protocolVersion;
 
     uint8_t featureLowBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 1];

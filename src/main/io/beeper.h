@@ -45,6 +45,8 @@ typedef enum {
     BEEPER_BLACKBOX_ERASE,          // Beep when blackbox erase completes
     BEEPER_ALL,                     // Turn ON or OFF all beeper conditions
     BEEPER_PREFERENCE               // Save preferred beeper configuration
+    BEEPER_CAM_CONNECTION_OPEN,     // When the 5 key simulation stated
+    BEEPER_CAM_CONNECTION_CLOSED,   // When the 5 key simulation stop
     // BEEPER_ALL and BEEPER_PREFERENCE must remain at the bottom of this enum
 } beeperMode_e;
 
