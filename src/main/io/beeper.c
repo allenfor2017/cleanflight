@@ -161,7 +161,7 @@ static const uint8_t beep_camConnectionOpen[] = {
 
 // Cam connection close
 static const uint8_t beep_camConnectionClose[] = {
-    20, 15, 10, 15, 5, BEEPER_COMMAND_STOP
+    10, 8, 5, BEEPER_COMMAND_STOP
 };
 
 // array used for variable # of beeps (reporting GPS sat count, etc)

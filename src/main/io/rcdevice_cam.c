@@ -44,7 +44,6 @@ runcamDevice_t *camDevice = &runcamDevice;
 
 rcdevice_cam_switch_state_t switchStates[BOXCAMERA5 - BOXCAMERA1 + 1];
 
-// timeUs_t lastTimeUs = 0;
 bool needRelease = false;
 
 bool isFeatureSupported(uint8_t feature)
@@ -147,13 +146,15 @@ bool rcdeviceSend5KeyOSDCableSimualtionEvent(
 
     bool reqResult = false;
     switch (key) {
-    case RCDEVICE_CAM_KEY_RIGHT_AND_TOP:
+    case RCDEVICE_CAM_KEY_CONNECTION_OPEN:
         reqResult = runcamDeviceOpen5KeyOSDCableConnection(camDevice);
-        if(reqResult) beeper(BEEPER_CAM_CONNECTION_OPEN);
+        if(reqResult) 
+            beeper(BEEPER_CAM_CONNECTION_OPEN);
         break;
-    case RCDEVICE_CAM_KEY_LEFT_LONG:
+    case RCDEVICE_CAM_KEY_CONNECTION_CLOSE:
         reqResult = runcamDeviceClose5KeyOSDCableConnection(camDevice);
-        if(reqResult) beeper(BEEPER_CAM_CONNECTION_CLOSE);
+        if(reqResult) 
+            beeper(BEEPER_CAM_CONNECTION_CLOSE);
         break;
     case RCDEVICE_CAM_KEY_ENTER:
     case RCDEVICE_CAM_KEY_LEFT:
@@ -198,18 +199,11 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
             return;
         }
     } else {
-        if (IS_MID(ROLL) && IS_MID(PITCH) && IS_LO(YAW)) { // Disconnect HI YAW
+        if (IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) && IS_LO(YAW)) { // Disconnect HI YAW
             if (rcdeviceInMenu) {
-                key = RCDEVICE_CAM_KEY_LEFT_LONG;
-                // if (lastTimeUs == 0) {
-                //     lastTimeUs = currentTimeUs;
-                // } else if ((currentTimeUs - lastTimeUs) >= 2000 * 1000) {
-                //     lastTimeUs = 0;
-                //     key = RCDEVICE_CAM_KEY_LEFT_LONG;
-                // }
+                key = RCDEVICE_CAM_KEY_CONNECTION_CLOSE;
             }
         } else {
-            // lastTimeUs = 0;
             if (rcdeviceInMenu) {
                 if (IS_LO(ROLL)) { // Left LO ROLL
                     key = RCDEVICE_CAM_KEY_LEFT;
@@ -226,7 +220,7 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
             } else {
                 if (IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) &&
                     IS_HI(YAW) && !ARMING_FLAG(ARMED)) { // Enter HI YAW
-                    key = RCDEVICE_CAM_KEY_RIGHT_AND_TOP;
+                    key = RCDEVICE_CAM_KEY_CONNECTION_OPEN;
                 }
             }
         }
