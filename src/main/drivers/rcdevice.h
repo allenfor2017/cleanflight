@@ -37,14 +37,14 @@
  // device setting access
  #define RCDEVICE_PROTOCOL_COMMAND_GET_SETTINGS                      0x10
  #define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING_DETAIL               0x11
- #define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING                      0x12
+//  #define RCDEVICE_PROTOCOL_COMMAND_READ_SETTING                      0x12
  #define RCDEVICE_PROTOCOL_COMMAND_WRITE_SETTING                     0x13
  // display port support
  #define RCDEVICE_PROTOCOL_COMMAND_DISP_FILL_REGION                  0x20
  #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHAR                   0x21
  #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_HORT_STRING            0x22
- #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x24
- #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHARS                  0x25
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_VERT_STRING            0x23
+ #define RCDEVICE_PROTOCOL_COMMAND_DISP_WRITE_CHARS                  0x24
  
  
  // Feature Flag sets, it's a uint16_t flag
