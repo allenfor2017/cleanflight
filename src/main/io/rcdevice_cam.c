@@ -27,6 +27,7 @@
 #include "config/parameter_group.h"
 #include "config/parameter_group_ids.h"
 #include "io/rcdevice_cam.h"
+#include "io/beeper.h"
 
 #include "config/feature.h"
 #include "fc/config.h"
@@ -43,7 +44,7 @@ runcamDevice_t *camDevice = &runcamDevice;
 
 rcdevice_cam_switch_state_t switchStates[BOXCAMERA5 - BOXCAMERA1 + 1];
 
-timeUs_t lastTimeUs = 0;
+// timeUs_t lastTimeUs = 0;
 bool needRelease = false;
 
 bool isFeatureSupported(uint8_t feature)
@@ -148,9 +149,11 @@ bool rcdeviceSend5KeyOSDCableSimualtionEvent(
     switch (key) {
     case RCDEVICE_CAM_KEY_RIGHT_AND_TOP:
         reqResult = runcamDeviceOpen5KeyOSDCableConnection(camDevice);
+        if(reqResult) beeper(BEEPER_CAM_CONNECTION_OPEN);
         break;
     case RCDEVICE_CAM_KEY_LEFT_LONG:
         reqResult = runcamDeviceClose5KeyOSDCableConnection(camDevice);
+        if(reqResult) beeper(BEEPER_CAM_CONNECTION_CLOSE);
         break;
     case RCDEVICE_CAM_KEY_ENTER:
     case RCDEVICE_CAM_KEY_LEFT:
@@ -186,7 +189,6 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
         if (IS_MID(YAW) && IS_MID(PITCH) && IS_MID(ROLL)) {
             key = RCDEVICE_CAM_KEY_RELEASE;
             if (!rcdeviceSend5KeyOSDCableSimualtionEvent(key)) {
-                beeperConfirmationBeeps(3);
                 rcdeviceInMenu = false;
             } else {
                 needRelease = false;
@@ -198,16 +200,16 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
     } else {
         if (IS_MID(ROLL) && IS_MID(PITCH) && IS_LO(YAW)) { // Disconnect HI YAW
             if (rcdeviceInMenu) {
-                if (lastTimeUs == 0) {
-                    lastTimeUs = currentTimeUs;
-                } else if ((currentTimeUs - lastTimeUs) >= 2000 * 1000) {
-                    lastTimeUs = 0;
-                    key = RCDEVICE_CAM_KEY_LEFT_LONG;
-                }
+                key = RCDEVICE_CAM_KEY_LEFT_LONG;
+                // if (lastTimeUs == 0) {
+                //     lastTimeUs = currentTimeUs;
+                // } else if ((currentTimeUs - lastTimeUs) >= 2000 * 1000) {
+                //     lastTimeUs = 0;
+                //     key = RCDEVICE_CAM_KEY_LEFT_LONG;
+                // }
             }
         } else {
-            lastTimeUs = 0;
-
+            // lastTimeUs = 0;
             if (rcdeviceInMenu) {
                 if (IS_LO(ROLL)) { // Left LO ROLL
                     key = RCDEVICE_CAM_KEY_LEFT;
@@ -222,8 +224,6 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
                     key = RCDEVICE_CAM_KEY_ENTER;
                 }
             } else {
-                // if (IS_MID(THROTTLE) && IS_HI(YAW) && IS_HI(PITCH) &&
-                // !ARMING_FLAG(ARMED)) {//HandShake HI YAW + HI PITCH
                 if (IS_MID(THROTTLE) && IS_MID(ROLL) && IS_MID(PITCH) &&
                     IS_HI(YAW) && !ARMING_FLAG(ARMED)) { // Enter HI YAW
                     key = RCDEVICE_CAM_KEY_RIGHT_AND_TOP;
@@ -233,9 +233,7 @@ void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs)
     }
 
     if (key != RCDEVICE_CAM_KEY_NONE) {
-        // if(key != RCDEVICE_CAM_KEY_RELEASE) beeperConfirmationBeeps(1);
         if (!rcdeviceSend5KeyOSDCableSimualtionEvent(key)) {
-            beeperConfirmationBeeps(3);
             rcdeviceInMenu = false;
         } else {
             needRelease = true;

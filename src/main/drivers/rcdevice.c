@@ -120,8 +120,8 @@ static bool runcamDeviceReceiveDeviceInfo(runcamDevice_t *device)
 
     device->info.protocolVersion = protocolVersion;
 
-    uint8_t featureLowBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 1];
-    uint8_t featureHighBits = data[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH + 2];
+    uint8_t featureLowBits = data[1];
+    uint8_t featureHighBits = data[2];
     device->info.features = (featureHighBits << 8) | featureLowBits;
 
     return true;
@@ -529,27 +529,27 @@ static bool runcamDeviceVerify(runcamDevice_t *device)
     // logic is: Send 'who are you' command to device to detect the device is
     // using rcsplit firmware 1.1, if so, then mark the device protocol version
     // as RCDEVICE_PROTOCOL_RCSPLIT_VERSION
-    runcamDeviceFlushRxBuffer(device);
-    rcsplitSendCtrlCommand(device, RCSPLIT_CTRL_ARGU_WHO_ARE_YOU);
-    timeMs_t timeout = millis() + 500;
-    while (millis() < timeout) {
-        uint8_t data[5];
-        uint8_t dataPos = 0;
-        if ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < 5) {
-            uint8_t c = serialRead(device->serialPort);
-            data[dataPos++] = c;
-        }
-    }
-    if (dataPos >= 5) {
-        // swap the tail field and crc field, and verify the crc
-        uint8_t t = data[3];
-        data[3] = data[4];
-        data[4] = t;
-        if (crc_high_first(data, 5) == 0) {
-            device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
-            return true;
-        }
-    }
+    // runcamDeviceFlushRxBuffer(device);
+    // rcsplitSendCtrlCommand(device, RCSPLIT_CTRL_ARGU_WHO_ARE_YOU);
+    // timeMs_t timeout = millis() + 500;
+    // uint8_t dataPos = 0;
+    // uint8_t data[5];
+    // while (millis() < timeout) {
+    //     if ((serialRxBytesWaiting(device->serialPort) > 0) && dataPos < 5) {
+    //         uint8_t c = serialRead(device->serialPort);
+    //         data[dataPos++] = c;
+    //     }
+    // }
+    // if (dataPos >= 5) {
+    //     // swap the tail field and crc field, and verify the crc
+    //     uint8_t t = data[3];
+    //     data[3] = data[4];
+    //     data[4] = t;
+    //     if (crc_high_first(data, 5) == 0) {
+    //         device->info.protocolVersion = RCDEVICE_PROTOCOL_RCSPLIT_VERSION;
+    //         return true;
+    //     }
+    // }
 
     // try to send RCDEVICE_PROTOCOL_COMMAND_GET_DEVICE_INFO to device,
     // if the response is expected, then mark the device protocol version as

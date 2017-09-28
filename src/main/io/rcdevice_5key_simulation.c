@@ -15,6 +15,10 @@
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
+#include <stdint.h>
+
 #include "io/rcdevice_5key_simulation.h"
 #include "drivers/rcdevice.h"
 #include "io/rcdevice_cam.h"

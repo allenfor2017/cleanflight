@@ -17,6 +17,9 @@
 
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "common/time.h"
 #include "drivers/rcdevice.h"
 #include "fc/rc_modes.h"

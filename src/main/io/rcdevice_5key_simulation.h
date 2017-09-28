@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#pragma once
+
+#include <stdbool.h>
+#include <stdint.h>
+
 #include "common/time.h"
 
 bool rcdeviceIs5KeySimulationReady(void);
