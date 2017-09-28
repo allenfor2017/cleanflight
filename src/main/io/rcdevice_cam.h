@@ -35,7 +35,7 @@ bool rcdeviceInMenu;
 bool rcdeviceInit(void);
 void rcdeviceProcess(timeUs_t currentTimeUs);
 
-bool isRcdeviceCamReady();
+bool isRcDeviceCamReady();
 bool isFeatureSupported(uint8_t feature);
 void rcdeviceCamProcessMode();
 void rcdeviceCamSimulate5KeyCablePressProcessMode(timeUs_t currentTimeUs);

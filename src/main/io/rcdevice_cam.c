@@ -54,7 +54,7 @@ bool isFeatureSupported(uint8_t feature)
     return false;
 }
 
-bool isRcdeviceCamReady()
+bool isRcDeviceCamReady()
 {
     if (camDevice->serialPort != NULL &&
         isFeatureSupported(

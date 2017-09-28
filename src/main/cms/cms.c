@@ -997,7 +997,7 @@ void cmsUpdate(uint32_t currentTimeUs)
 }
 
 void cmsHandler(timeUs_t currentTimeUs)
-{    
+{
     if (cmsDeviceCount < 0)
         return;
 

@@ -25,7 +25,7 @@
 
 bool rcdeviceIs5KeySimulationReady(void)
 {
-    bool isReady = isRcdeviceCamReady();
+    bool isReady = isRcDeviceCamReady();
     return isReady;
 }
 
