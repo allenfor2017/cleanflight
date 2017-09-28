@@ -108,16 +108,16 @@ typedef enum {
 // Reserved setting ids
 typedef enum {
     RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET =
-        0, // type: text_selection, readwrite, 0: use charset with betaflight logo, 1 use
+        0, // type: text_selection, read&write, 0: use charset with betaflight logo, 1 use
            // charset with cleanflight logo, other id are not used
     RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS =
         1, // type: uint8_t, read only, the column count of the OSD layer
     RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE =
-        2, // type: text_selection, readwrite, 0:NTSC, 1:PAL
-    RCDEVICE_PROTOCOL_SETTINGID_SDCARD_CAPACITY = 3,
-    RCDEVICE_PROTOCOL_SETTINGID_REMAINING_RECORDING_TIME = 4,
-    RCDEVICE_PROTOCOL_SETTINGID_RESOLUTION = 5,
-    RCDEVICE_PROTOCOL_SETTINGID_CAMERA_TIME = 6,
+        2, // type: text_selection, read&write, 0:NTSC, 1:PAL
+    RCDEVICE_PROTOCOL_SETTINGID_SDCARD_CAPACITY = 3, // type: string, read only, return sd card capacity
+    RCDEVICE_PROTOCOL_SETTINGID_REMAINING_RECORDING_TIME = 4, // type: string, read only, return remaining recording time
+    RCDEVICE_PROTOCOL_SETTINGID_RESOLUTION = 5, // type: text selection, read&write, return the current resolution and all available resolutions
+    RCDEVICE_PROTOCOL_SETTINGID_CAMERA_TIME = 6, // type: string, read&write, update the camera time, the time attribute of  medias file in camera will use this time.
     RCDEVICE_PROTOCOL_SETTINGID_RESERVED7 = 7,
     RCDEVICE_PROTOCOL_SETTINGID_RESERVED8 = 8,
     RCDEVICE_PROTOCOL_SETTINGID_RESERVED9 = 9,
