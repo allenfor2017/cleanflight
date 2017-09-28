@@ -25,7 +25,6 @@
 //
 #define RCDEVICE_PROTOCOL_HEADER 0xCC
 
-#define RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH 10
 #define RCDEVICE_PROTOCOL_MAX_DATA_SIZE 62
 
 // Commands
@@ -57,7 +56,8 @@ typedef enum {
     RCDEVICE_PROTOCOL_FEATURE_DEVICE_SETTINGS_ACCESS = (1 << 4),
     RCDEVICE_PROTOCOL_FEATURE_DISPLAYP_PORT = (1 << 5),
     RCDEVICE_PROTOCOL_FEATURE_START_RECORDING = (1 << 6),
-    RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING = (1 << 7)
+    RCDEVICE_PROTOCOL_FEATURE_STOP_RECORDING = (1 << 7),
+    RCDEVICE_PROTOCOL_FEATURE_CMS_MENU = (1 << 8),
 } rcdevice_features_e;
 
 // Operation of Camera Button Simulation
@@ -108,12 +108,12 @@ typedef enum {
 // Reserved setting ids
 typedef enum {
     RCDEVICE_PROTOCOL_SETTINGID_DISP_CHARSET =
-        0, // type: text_selection, 0 is a charset with betaflight logo, 1 is a
+        0, // type: text_selection, readwrite, 0: use charset with betaflight logo, 1 use
            // charset with cleanflight logo, other id are not used
     RCDEVICE_PROTOCOL_SETTINGID_DISP_COLUMNS =
         1, // type: uint8_t, read only, the column count of the OSD layer
     RCDEVICE_PROTOCOL_SETTINGID_DISP_TV_MODE =
-        2, // type: uint8_t, readwrite, 0:NTSC, 1:PAL
+        2, // type: text_selection, readwrite, 0:NTSC, 1:PAL
     RCDEVICE_PROTOCOL_SETTINGID_RESERVED3 = 3,
     RCDEVICE_PROTOCOL_SETTINGID_RESERVED4 = 4,
     RCDEVICE_PROTOCOL_SETTINGID_RESERVED5 = 5,
@@ -163,7 +163,6 @@ typedef enum {
 // end of old version protocol definition
 
 typedef struct {
-    char firmwareVersion[RCDEVICE_PROTOCOL_VERSION_STRING_LENGTH];
     rcdevice_protocol_version_e protocolVersion;
     uint16_t features;
 } runcamDeviceInfo_t;
