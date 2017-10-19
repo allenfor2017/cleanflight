@@ -96,8 +96,8 @@ static uint8_t runcamDeviceReceivePacket(runcamDevice_t *device, uint8_t command
     uint8_t crc = 0;
     uint8_t responseDataLen = 0;
 
-    // wait 1000ms for reply
-    timeMs_t timeout = millis() + 1000;
+    // wait 500ms for reply
+    timeMs_t timeout = millis() + 500ms;
     bool isWaitingHeader = true;
     while (millis() < timeout) {
         if (serialRxBytesWaiting(device->serialPort) > 0) {
